@@ -23,6 +23,8 @@ class ReadingActivityScreen extends StatefulWidget {
   final Map<int, Map<int, int>> monthlyHeatmap;
   final Map<int, Map<String, int>> dailyHeatmap;
   final double readingVelocity;
+  final double pagesPerHour;
+  final int averageSecondsPerBook;
   final double averageDaysToFinish;
   final double averageBooksPerYear;
   final int booksUsedInAverageDays;
@@ -52,6 +54,8 @@ class ReadingActivityScreen extends StatefulWidget {
     required this.monthlyHeatmap,
     required this.dailyHeatmap,
     required this.readingVelocity,
+    required this.pagesPerHour,
+    required this.averageSecondsPerBook,
     required this.averageDaysToFinish,
     required this.averageBooksPerYear,
     required this.booksUsedInAverageDays,
@@ -348,6 +352,8 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               title: l10n.reading_efficiency,
               child: ReadingEfficiencyCard(
                 readingVelocity: widget.readingVelocity,
+                pagesPerHour: widget.pagesPerHour,
+                averageSecondsPerBook: widget.averageSecondsPerBook,
                 averageDaysToFinish: widget.averageDaysToFinish,
                 averageBooksPerYear: widget.averageBooksPerYear,
                 booksUsedInAverageDays: widget.booksUsedInAverageDays,

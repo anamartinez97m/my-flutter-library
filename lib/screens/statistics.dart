@@ -317,6 +317,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     monthlyHeatmap: currentStats.monthlyHeatmap,
                     dailyHeatmap: currentStats.dailyHeatmap,
                     readingVelocity: currentStats.readingVelocity,
+                    pagesPerHour: currentStats.pagesPerHour,
+                    averageSecondsPerBook: currentStats.averageSecondsPerBook,
                     averageDaysToFinish: currentStats.averageDaysToFinish,
                     averageBooksPerYear: currentStats.averageBooksPerYear,
                     booksUsedInAverageDays: currentStats.booksUsedInAverageDays,

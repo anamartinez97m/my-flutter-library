@@ -14,6 +14,8 @@ Color get _kDivider => V2Colors.divider;
 /// projections, keeping the supporting numbers as secondary context.
 class ReadingEfficiencyCard extends StatelessWidget {
   final double readingVelocity;
+  final double pagesPerHour;
+  final int averageSecondsPerBook;
   final double averageDaysToFinish;
   final double averageBooksPerYear;
   final int booksUsedInAverageDays;
@@ -22,6 +24,8 @@ class ReadingEfficiencyCard extends StatelessWidget {
   const ReadingEfficiencyCard({
     super.key,
     required this.readingVelocity,
+    required this.pagesPerHour,
+    required this.averageSecondsPerBook,
     required this.averageDaysToFinish,
     required this.averageBooksPerYear,
     required this.booksUsedInAverageDays,
@@ -66,26 +70,52 @@ class ReadingEfficiencyCard extends StatelessWidget {
         const SizedBox(height: 16),
         Divider(height: 1, thickness: 1, color: _kDivider),
         const SizedBox(height: 16),
-        // Supporting metrics row
+        // Supporting metrics grid
         Row(
           children: [
+            _SupportStat(
+              icon: Icons.bolt,
+              value: pagesPerHour.toStringAsFixed(1),
+              label: l10n.pages_per_hour,
+              color: _kPrimary,
+            ),
+            const SizedBox(width: 16),
             _SupportStat(
               icon: Icons.speed,
               value: readingVelocity.toStringAsFixed(1),
               label: l10n.pages_per_day,
               color: _kPrimary,
             ),
-            const SizedBox(width: 16),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
             _SupportStat(
               icon: Icons.trending_up,
               value: averageBooksPerYear.toStringAsFixed(1),
               label: l10n.books_per_year,
               color: _kPrimary,
             ),
+            const SizedBox(width: 16),
+            _SupportStat(
+              icon: Icons.hourglass_bottom,
+              value: _formatReadingTime(averageSecondsPerBook, l10n),
+              label: l10n.hours_per_book,
+              color: _kPrimary,
+            ),
           ],
         ),
       ],
     );
+  }
+
+  String _formatReadingTime(int seconds, AppLocalizations l10n) {
+    final totalMinutes = (seconds / 60).round();
+    if (totalMinutes < 60) return '$totalMinutes ${l10n.minutes_short}';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    return minutes == 0 ? '${hours}h' : '${hours}h ${minutes}m';
   }
 
   double _projectedBooksThisYear() {
@@ -169,6 +199,7 @@ class _SupportStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 8),

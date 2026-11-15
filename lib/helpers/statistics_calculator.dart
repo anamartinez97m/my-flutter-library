@@ -60,6 +60,8 @@ class StatisticsData {
   final double bingePercentage;
   final Map<String, String> topGenreBySeason;
   final double readingVelocity;
+  final double pagesPerHour;
+  final int averageSecondsPerBook;
   final double averageDaysToFinish;
   final int booksUsedInAverageDays;
   final double averageBooksPerYear;
@@ -132,6 +134,8 @@ class StatisticsData {
     required this.bingePercentage,
     required this.topGenreBySeason,
     required this.readingVelocity,
+    required this.pagesPerHour,
+    required this.averageSecondsPerBook,
     required this.averageDaysToFinish,
     required this.booksUsedInAverageDays,
     required this.averageBooksPerYear,
@@ -290,6 +294,7 @@ class StatisticsCalculator {
     }
 
     double readingVelocity = _calculateReadingVelocity();
+    final timedPace = _calculateTimedReadingPace();
     double averageDaysToFinish = _calculateAverageDaysToFinish();
     int booksUsedInAverageDays = _getBooksUsedInAverageDaysCalculation();
     final efficiencyResult = _calculateReadingEfficiency(readingVelocity);
@@ -410,6 +415,8 @@ class StatisticsCalculator {
       bingePercentage: bingeResult,
       topGenreBySeason: moodResult,
       readingVelocity: readingVelocity,
+      pagesPerHour: timedPace.pagesPerHour,
+      averageSecondsPerBook: timedPace.averageSecondsPerBook,
       averageDaysToFinish: averageDaysToFinish,
       booksUsedInAverageDays: booksUsedInAverageDays,
       averageBooksPerYear: averageBooksPerYear,
@@ -593,6 +600,39 @@ class StatisticsCalculator {
     return (totalReadingDays > 0 && totalPages > 0)
         ? totalPages.toDouble() / totalReadingDays.toDouble()
         : 0.0;
+  }
+
+  /// Pages per hour and average reading time per book, using only read
+  /// books with pages and timed reading sessions.
+  ({double pagesPerHour, int averageSecondsPerBook})
+  _calculateTimedReadingPace() {
+    int totalPages = 0;
+    int totalSeconds = 0;
+    int timedBooks = 0;
+    for (var book in books) {
+      if (book.bookId == null ||
+          book.readCount == null ||
+          book.readCount! <= 0 ||
+          book.pages == null ||
+          book.pages! <= 0) {
+        continue;
+      }
+      final seconds =
+          _mapSessionsToDailyReadings(
+            bookSessions[book.bookId] ?? [],
+          ).totalSecondsRead;
+      if (seconds <= 0) continue;
+      totalPages += book.pages!;
+      totalSeconds += seconds;
+      timedBooks++;
+    }
+    if (timedBooks == 0) {
+      return (pagesPerHour: 0.0, averageSecondsPerBook: 0);
+    }
+    return (
+      pagesPerHour: totalPages / (totalSeconds / 3600),
+      averageSecondsPerBook: totalSeconds ~/ timedBooks,
+    );
   }
 
   Map<String, dynamic> _calculateReadingEfficiency(double averageVelocity) {

@@ -3826,7 +3826,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get press_enter_to_add => 'Pulsa Enter para añadir una nueva entrada';
 
   @override
+  String get pages_per_hour => 'páginas/hora';
+
+  @override
   String get pages_per_day => 'páginas/día';
+
+  @override
+  String get hours_per_book => 'horas/libro';
 
   @override
   String get books_per_year => 'libros/año';
