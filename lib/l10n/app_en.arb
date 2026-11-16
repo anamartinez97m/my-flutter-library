@@ -1697,7 +1697,9 @@
 
   "press_enter_to_add": "Press Enter to add a new entry",
 
+  "pages_per_hour": "pages/hour",
   "pages_per_day": "pages/day",
+  "hours_per_book": "hours/book",
   "books_per_year": "books/year",
   "based_on_books_with_data": "Based on {count} books with reading data",
   "@based_on_books_with_data": {

@@ -6800,11 +6800,23 @@ abstract class AppLocalizations {
   /// **'Press Enter to add a new entry'**
   String get press_enter_to_add;
 
+  /// No description provided for @pages_per_hour.
+  ///
+  /// In en, this message translates to:
+  /// **'pages/hour'**
+  String get pages_per_hour;
+
   /// No description provided for @pages_per_day.
   ///
   /// In en, this message translates to:
   /// **'pages/day'**
   String get pages_per_day;
+
+  /// No description provided for @hours_per_book.
+  ///
+  /// In en, this message translates to:
+  /// **'hours/book'**
+  String get hours_per_book;
 
   /// No description provided for @books_per_year.
   ///

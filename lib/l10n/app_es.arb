@@ -1690,7 +1690,9 @@
 
   "press_enter_to_add": "Pulsa Enter para añadir una nueva entrada",
 
+  "pages_per_hour": "páginas/hora",
   "pages_per_day": "páginas/día",
+  "hours_per_book": "horas/libro",
   "books_per_year": "libros/año",
   "based_on_books_with_data": "Basado en {count} libros con datos de lectura",
   "@based_on_books_with_data": {

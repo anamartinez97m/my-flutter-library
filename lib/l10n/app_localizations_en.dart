@@ -3779,7 +3779,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get press_enter_to_add => 'Press Enter to add a new entry';
 
   @override
+  String get pages_per_hour => 'pages/hour';
+
+  @override
   String get pages_per_day => 'pages/day';
+
+  @override
+  String get hours_per_book => 'hours/book';
 
   @override
   String get books_per_year => 'books/year';
