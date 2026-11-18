@@ -11,6 +11,7 @@ void main() {
     final year = TextEditingController();
     int? month;
     int? day;
+    late StateSetter rebuild;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -24,22 +25,24 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: StatefulBuilder(
-            builder:
-                (context, setState) => PublicationDateFields(
-                  yearController: year,
-                  month: month,
-                  day: day,
-                  decoration:
-                      (label, icon) => InputDecoration(
-                        labelText: label,
-                        prefixIcon: Icon(icon),
-                      ),
-                  onChanged:
-                      (m, d) => setState(() {
-                        month = m;
-                        day = d;
-                      }),
-                ),
+            builder: (context, setState) {
+              rebuild = setState;
+              return PublicationDateFields(
+                yearController: year,
+                month: month,
+                day: day,
+                decoration:
+                    (label, icon) => InputDecoration(
+                      labelText: label,
+                      prefixIcon: Icon(icon),
+                    ),
+                onChanged:
+                    (m, d) => setState(() {
+                      month = m;
+                      day = d;
+                    }),
+              );
+            },
           ),
         ),
       ),
@@ -64,5 +67,14 @@ void main() {
     expect(month, 2);
     expect(dropdown(1).onChanged, isNotNull);
     expect(dropdown(1).items!.length, 30); // "—" + 29 days in Feb 2024
+
+    rebuild(() => day = 29);
+    await tester.pump();
+    expect(dropdown(1).value, 29);
+
+    await tester.enterText(find.byType(TextFormField).first, '2023');
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(dropdown(1).value, isNull);
   });
 }

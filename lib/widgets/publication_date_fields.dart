@@ -35,11 +35,12 @@ class PublicationDateFields extends StatelessWidget {
         final year = int.tryParse(value.text.trim());
         final hasYear = year != null && year > 0;
         final selectedMonth = hasYear ? month : null;
-        final selectedDay = selectedMonth != null ? day : null;
         final maxDay =
             selectedMonth != null
                 ? PublicationDate.daysInMonth(year!, selectedMonth)
                 : 31;
+        final selectedDay =
+            selectedMonth != null && day != null && day! <= maxDay ? day : null;
 
         return Column(
           children: [
