@@ -1819,17 +1819,20 @@ class BookRepository {
 
       // Update books where:
       // 1. Status is TBReleased
-      // 2. release_date is set and its day is today or earlier
-      // Also set acquired_date = release_date (the release day is the acquisition day)
+      // 2. release_date (or, without it, an exact original publication
+      //    date) is today or earlier
+      // Also set acquired_date to that day (the release day is the acquisition day)
       final result = await db.rawUpdate(
         '''
         UPDATE book
         SET status_id = ?,
-            acquired_date = release_date
+            acquired_date = COALESCE(NULLIF(release_date, ''), original_publication_date)
         WHERE status_id = ?
-          AND release_date IS NOT NULL
-          AND release_date != ''
-          AND substr(release_date, 1, 10) <= ?
+          AND substr(COALESCE(
+                NULLIF(release_date, ''),
+                CASE WHEN length(original_publication_date) = 10
+                  THEN original_publication_date END
+              ), 1, 10) <= ?
       ''',
         [notReadStatus['status_id'], tbReleasedStatus['status_id'], today],
       );
