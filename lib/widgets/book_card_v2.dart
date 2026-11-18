@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
+import 'package:myrandomlibrary/utils/publication_date.dart';
 import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +68,8 @@ class BookCardV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isRead = _isReadForCard(context);
-    final publicationDate = parseStoredDate(book.notificationDatetime);
+    final isTBReleased = book.statusValue?.toLowerCase() == 'tbreleased';
+    final releaseDate = isTBReleased ? bookReleaseDate(book) : null;
 
     final meta = <_MetaItem>[];
     if (enabledCardFields.contains('saga') &&
@@ -151,29 +154,36 @@ class BookCardV2 extends StatelessWidget {
         _MetaItem(
           icon: Icons.calendar_today_outlined,
           text:
-              book.statusValue?.toLowerCase() == 'tbreleased' &&
-                      book.originalPublicationYear! >= 10000000
-                  ? '${book.originalPublicationYear}'.substring(0, 4)
-                  : '${book.originalPublicationYear}',
+              '${PublicationDate.fromYearColumn(book.originalPublicationYear)?.year ?? book.originalPublicationYear}',
         ),
       );
     }
     _ReleaseCountdown? releaseCountdown;
-    if (enabledCardFields.contains('publication_date') &&
-        book.notificationDatetime != null &&
-        book.notificationDatetime!.isNotEmpty) {
-      if (book.statusValue?.toLowerCase() == 'tbreleased' &&
-          publicationDate != null) {
-        releaseCountdown = _ReleaseCountdown.from(
-          publicationDate,
-          DateTime.now(),
-        );
+    if (enabledCardFields.contains('publication_date')) {
+      if (releaseDate != null) {
+        releaseCountdown = _ReleaseCountdown.from(releaseDate, DateTime.now());
+      } else {
+        final publicationDate = PublicationDate.fromBook(book);
+        if (publicationDate != null && publicationDate.hasMonth) {
+          meta.add(
+            _MetaItem(
+              icon: Icons.event_outlined,
+              text: publicationDate.format(
+                Localizations.localeOf(context).toString(),
+              ),
+            ),
+          );
+        }
       }
-      if (releaseCountdown == null) {
+      final notification =
+          book.notificationEnabled == true
+              ? parseStoredDate(book.notificationDatetime)
+              : null;
+      if (notification != null && notification.isAfter(DateTime.now())) {
         meta.add(
           _MetaItem(
             icon: Icons.notifications_none_outlined,
-            text: book.notificationDatetime!.split('T')[0],
+            text: DateFormat('dd/MM/yyyy HH:mm').format(notification),
           ),
         );
       }

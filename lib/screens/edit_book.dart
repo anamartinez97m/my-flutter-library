@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/publication_date.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
+import 'package:myrandomlibrary/widgets/publication_date_fields.dart';
+import 'package:myrandomlibrary/widgets/release_notification_presets.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -59,6 +63,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _pagesController;
   late TextEditingController _publicationYearController;
   DateTime? _releaseDate;
+  int? _publicationMonth;
+  int? _publicationDay;
   late TextEditingController _genreController;
   late TextEditingController _myReviewController;
   late TextEditingController _notesController;
@@ -152,33 +158,33 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return trimmed[0].toUpperCase() + trimmed.substring(1).toLowerCase();
   }
 
-  /// Get publication year or full date (YYYYMMDD) for TBReleased books
-  int? _getPublicationYearOrDate() {
-    final yearStr = _publicationYearController.text.trim();
-    if (yearStr.isEmpty) return null;
+  PublicationDate? _publicationDate() => PublicationDate.fromParts(
+    int.tryParse(_publicationYearController.text.trim()),
+    _publicationMonth,
+    _publicationDay,
+  );
 
-    final year = int.tryParse(yearStr);
-    if (year == null) return null;
-
-    // Check if this is a TBReleased book with release date
-    final isTBReleased =
-        _statusList.isNotEmpty &&
-        _selectedStatusId != null &&
-        _statusList.any(
-          (s) =>
-              s['status_id'] == _selectedStatusId &&
-              (s['value'] as String).toLowerCase() == 'tbreleased',
-        );
-
-    if (isTBReleased && _releaseDate != null) {
-      // Store as YYYYMMDD
-      return _releaseDate!.year * 10000 +
-          _releaseDate!.month * 100 +
-          _releaseDate!.day;
+  /// Sets the release date, which is also the publication date, and moves a
+  /// preset notification (release day, 1 day or 1 week before) along with it.
+  void _setReleaseDate(DateTime date) {
+    final offset = releaseNotificationOffset(
+      _releaseDate,
+      _notificationDateTime,
+    );
+    _releaseDate = date;
+    _publicationYearController.text = date.year.toString();
+    _publicationMonth = date.month;
+    _publicationDay = date.day;
+    if (offset != null && _notificationDateTime != null) {
+      _setNotificationDateTime(
+        releaseNotificationAt(date, offset, timeOf: _notificationDateTime),
+      );
     }
+  }
 
-    // Just return the year
-    return year;
+  void _setNotificationDateTime(DateTime value) {
+    _notificationDateTime = value;
+    _notificationTime = TimeOfDay.fromDateTime(value);
   }
 
   @override
@@ -341,24 +347,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _pagesController = TextEditingController(
       text: widget.book.pages?.toString() ?? '',
     );
+    final publicationDate = PublicationDate.fromBook(widget.book);
     _publicationYearController = TextEditingController(
-      text: widget.book.originalPublicationYear?.toString() ?? '',
+      text: publicationDate?.year.toString() ?? '',
     );
-
-    // Parse release date if it's in YYYYMMDD format (> 9999)
-    if (widget.book.originalPublicationYear != null &&
-        widget.book.originalPublicationYear! > 9999) {
-      final dateInt = widget.book.originalPublicationYear!;
-      final year = dateInt ~/ 10000;
-      final month = (dateInt % 10000) ~/ 100;
-      final day = dateInt % 100;
-      try {
-        _releaseDate = DateTime(year, month, day);
-        _publicationYearController.text = year.toString();
-      } catch (e) {
-        // Invalid date, just use the value as year
-      }
-    }
+    _publicationMonth = publicationDate?.month;
+    _publicationDay = publicationDate?.day;
     _genreController = TextEditingController(text: widget.book.genre);
     _myReviewController = TextEditingController(text: widget.book.myReview);
     _notesController = TextEditingController(text: widget.book.notes ?? '');
@@ -696,7 +690,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ? null
                 : _sagaUniverseController.text.trim(),
         pages: newPages,
-        originalPublicationYear: _getPublicationYearOrDate(),
+        originalPublicationYear: _publicationDate()?.year,
+        originalPublicationDate: _publicationDate()?.toStorage(),
         loaned: (_selectedLoaned ?? 'no').toLowerCase(),
         statusValue: statusValue,
         editorialValue:
@@ -773,6 +768,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         sagaUniverse: updatedBook.sagaUniverse,
         pages: updatedBook.pages,
         originalPublicationYear: updatedBook.originalPublicationYear,
+        originalPublicationDate: updatedBook.originalPublicationDate,
         statusValue: updatedBook.statusValue,
         formatSagaValue: updatedBook.formatSagaValue,
         languageValue: updatedBook.languageValue,
@@ -1972,16 +1968,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Publication Year field
-                  TextFormField(
-                    controller: _publicationYearController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.publication_year,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.calendar_today),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  PublicationDateFields(
+                    yearController: _publicationYearController,
+                    month: _publicationMonth,
+                    day: _publicationDay,
+                    spacing: 16,
+                    decoration:
+                        (label, icon) => InputDecoration(
+                          labelText: label,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: Icon(icon),
+                        ),
+                    onChanged:
+                        (month, day) => setState(() {
+                          _publicationMonth = month;
+                          _publicationDay = day;
+                        }),
                   ),
                   const SizedBox(height: 16),
 
@@ -1997,14 +1999,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.original_publication_date,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
                         InkWell(
                           onTap: () async {
                             final pickedDate = await showDatePicker(
@@ -2014,12 +2008,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
-                              setState(() {
-                                _releaseDate = pickedDate;
-                                // Update publication year to match
-                                _publicationYearController.text =
-                                    pickedDate.year.toString();
-                              });
+                              setState(() => _setReleaseDate(pickedDate));
                             }
                           },
                           child: InputDecorator(
@@ -2097,7 +2086,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               final pickedDate = await showDatePicker(
                                 context: context,
                                 initialDate:
-                                    _notificationDateTime ?? DateTime.now(),
+                                    _notificationDateTime != null &&
+                                            _notificationDateTime!.isAfter(
+                                              DateTime.now(),
+                                            )
+                                        ? _notificationDateTime!
+                                        : DateTime.now(),
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
                               );
@@ -2150,6 +2144,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 ),
                               ),
                             ),
+                          ),
+                          ReleaseNotificationPresets(
+                            releaseDate: _releaseDate,
+                            notificationDateTime: _notificationDateTime,
+                            onSelected:
+                                (value) => setState(
+                                  () => _setNotificationDateTime(value),
+                                ),
                           ),
                           const SizedBox(height: 8),
                         ],

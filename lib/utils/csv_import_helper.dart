@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:myrandomlibrary/utils/publication_date.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 
@@ -38,6 +39,7 @@ class CsvImportHelper {
     'Genre',
     'Pages',
     'Original Publication Year',
+    'Original Publication Date',
     'Loaned',
     'Date Read Initial',
     'Date Read Final',
@@ -251,6 +253,7 @@ class CsvImportHelper {
       asin: book.asin,
       pages: book.pages,
       originalPublicationYear: book.originalPublicationYear,
+      originalPublicationDate: book.originalPublicationDate,
       loaned: book.loaned,
       statusValue: book.statusValue,
       editorialValue: book.editorialValue,
@@ -341,6 +344,11 @@ class CsvImportHelper {
     var asin = getValue('asin');
     final pagesStr = getValue('pages') ?? getValue('number of pages');
     final pubYearStr = getValue('original publication year');
+    final publicationDate =
+        PublicationDate.parse(getValue('original publication date')) ??
+        PublicationDate.fromYearColumn(
+          pubYearStr != null ? int.tryParse(pubYearStr) : null,
+        );
     final language = getValue('language');
     final place = getValue('place');
     // Handle both 'binding' (legacy) and 'format' (exported) column names
@@ -421,8 +429,8 @@ class CsvImportHelper {
       sagaUniverse: sagaUniverse,
       formatSagaValue: formatSaga,
       pages: pagesStr != null ? int.tryParse(pagesStr) : null,
-      originalPublicationYear:
-          pubYearStr != null ? int.tryParse(pubYearStr) : null,
+      originalPublicationYear: publicationDate?.year,
+      originalPublicationDate: publicationDate?.toStorage(),
       loaned: loaned ?? 'no',
       statusValue: statusValue,
       editorialValue: publisher,

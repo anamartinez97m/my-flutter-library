@@ -48,6 +48,7 @@ void main() async {
       // Reschedule reading reminders (in case books changed, app updated, or device rebooted)
       await notificationService.scheduleReadingReminders();
       await notificationService.scheduleChampionshipReminder();
+      await notificationService.rescheduleBookReleaseNotifications();
     } catch (e) {
       debugPrint('Error initializing notifications: $e');
     }

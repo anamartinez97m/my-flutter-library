@@ -3638,12 +3638,6 @@ abstract class AppLocalizations {
   /// **'Added genres from the saga/universe: {genres}'**
   String genres_added_from_series(String genres);
 
-  /// No description provided for @original_publication_date.
-  ///
-  /// In en, this message translates to:
-  /// **'Original Publication Date (for notifications)'**
-  String get original_publication_date;
-
   /// No description provided for @release_date.
   ///
   /// In en, this message translates to:
@@ -3667,6 +3661,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification Date & Time'**
   String get notification_date_time;
+
+  /// No description provided for @publication_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get publication_month;
+
+  /// No description provided for @publication_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get publication_day;
+
+  /// No description provided for @notify_on_release_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Release day'**
+  String get notify_on_release_day;
+
+  /// No description provided for @notify_one_day_before.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get notify_one_day_before;
+
+  /// No description provided for @notify_one_week_before.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week before'**
+  String get notify_one_week_before;
+
+  /// No description provided for @notification_after_release_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'The notification is after the release date'**
+  String get notification_after_release_warning;
 
   /// No description provided for @select_notification_date.
   ///

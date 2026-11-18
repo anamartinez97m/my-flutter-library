@@ -543,6 +543,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             formatSagaValue: book.formatSagaValue?.trim(),
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
+            originalPublicationDate: book.originalPublicationDate,
             loaned:
                 (book.loaned?.trim().isEmpty ?? true)
                     ? 'no'
@@ -621,7 +622,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
                 b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
                 p.name as placeValue, f.value as formatValue,
-                fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+                fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
                 b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
                 b.read_count, b.my_rating, b.my_review,
                 b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
@@ -680,6 +681,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     pages: existingBook.pages,
                     originalPublicationYear:
                         existingBook.originalPublicationYear,
+                    originalPublicationDate:
+                        existingBook.originalPublicationDate,
                     loaned: existingBook.loaned,
                     statusValue: existingBook.statusValue,
                     editorialValue: existingBook.editorialValue,
@@ -764,6 +767,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 originalPublicationYear:
                     bookWithMappedStatus.originalPublicationYear ??
                     existingBook.originalPublicationYear,
+                originalPublicationDate:
+                    bookWithMappedStatus.originalPublicationYear != null
+                        ? bookWithMappedStatus.originalPublicationDate
+                        : existingBook.originalPublicationDate,
                 loaned:
                     bookWithMappedStatus.loaned?.isNotEmpty == true
                         ? bookWithMappedStatus.loaned
@@ -1091,6 +1098,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               formatSagaValue: item.book.formatSagaValue,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
+              originalPublicationDate: item.book.originalPublicationDate,
               statusValue: item.book.statusValue,
               editorialValue: item.book.editorialValue,
               languageValue: item.book.languageValue,
@@ -1290,6 +1298,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               formatSagaValue: item.book.formatSagaValue,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
+              originalPublicationDate: item.book.originalPublicationDate,
               statusValue: item.book.statusValue,
               editorialValue: item.book.editorialValue,
               languageValue: item.book.languageValue,
@@ -2221,6 +2230,11 @@ class _BookImportPreview extends StatelessWidget {
           useOriginalPublicationYear
               ? originalPublicationYear
               : book.originalPublicationYear,
+      originalPublicationDate:
+          !useOriginalPublicationYear ||
+                  originalPublicationYear == book.originalPublicationYear
+              ? book.originalPublicationDate
+              : null,
       loaned: useLoaned ? loaned : book.loaned,
       statusValue: useStatusValue ? statusValue : book.statusValue,
       editorialValue: useEditorialValue ? editorialValue : book.editorialValue,

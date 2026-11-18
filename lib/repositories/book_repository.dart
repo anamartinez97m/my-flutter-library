@@ -52,7 +52,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -120,7 +120,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -251,7 +251,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -292,7 +292,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -349,7 +349,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -1049,6 +1049,13 @@ class BookRepository {
         newBook.originalPublicationYear != null) {
       updates['original_publication_year'] = newBook.originalPublicationYear;
     }
+    if (existing['original_publication_date'] == null &&
+        newBook.originalPublicationDate != null &&
+        (existing['original_publication_year'] == null ||
+            existing['original_publication_year'] ==
+                newBook.originalPublicationYear)) {
+      updates['original_publication_date'] = newBook.originalPublicationDate;
+    }
     if ((existing['loaned'] == null || existing['loaned'].toString().isEmpty) &&
         newBook.loaned != null &&
         newBook.loaned!.isNotEmpty) {
@@ -1219,6 +1226,7 @@ class BookRepository {
       'saga_universe': book.sagaUniverse,
       'pages': book.pages,
       'original_publication_year': book.originalPublicationYear,
+      'original_publication_date': book.originalPublicationDate,
       'loaned': book.loaned,
       'status_id': statusId,
       'editorial_id': editorialId,
@@ -1579,6 +1587,9 @@ class BookRepository {
         COALESCE(orig_fs.value, fs.value) as formatSagaValue,
         COALESCE(orig.loaned, b.loaned) as loaned,
         COALESCE(orig.original_publication_year, b.original_publication_year) as original_publication_year,
+        CASE WHEN orig.original_publication_year IS NOT NULL
+          THEN orig.original_publication_date
+          ELSE b.original_publication_date END as original_publication_date,
         COALESCE(orig.pages, b.pages) as pages,
         COALESCE(orig.created_at, b.created_at) as created_at,
         COALESCE(orig.date_read_initial, b.date_read_initial) as date_read_initial,
@@ -1693,7 +1704,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -1749,7 +1760,7 @@ class BookRepository {
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -1808,7 +1819,7 @@ class BookRepository {
 
       // Update books where:
       // 1. Status is TBReleased
-      // 2. release_date is set and <= today
+      // 2. release_date is set and its day is today or earlier
       // Also set acquired_date = release_date (the release day is the acquisition day)
       final result = await db.rawUpdate(
         '''
@@ -1818,7 +1829,7 @@ class BookRepository {
         WHERE status_id = ?
           AND release_date IS NOT NULL
           AND release_date != ''
-          AND release_date <= ?
+          AND substr(release_date, 1, 10) <= ?
       ''',
         [notReadStatus['status_id'], tbReleasedStatus['status_id'], today],
       );
@@ -2214,7 +2225,7 @@ class BookRepository {
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -2258,7 +2269,7 @@ class BookRepository {
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -2373,7 +2384,7 @@ class BookRepository {
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
@@ -2428,6 +2439,17 @@ class BookRepository {
           'UPDATE book SET $field = ? WHERE book_id = ?',
           [entry.value, entry.key],
         );
+        if (field == 'original_publication_year') {
+          await txn.rawUpdate(
+            '''
+            UPDATE book SET original_publication_date = NULL
+            WHERE book_id = ?
+              AND original_publication_date IS NOT NULL
+              AND CAST(substr(original_publication_date, 1, 4) AS INTEGER) != ?
+            ''',
+            [entry.key, entry.value],
+          );
+        }
       }
     });
     return updated;
@@ -2542,7 +2564,7 @@ class BookRepository {
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
