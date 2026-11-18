@@ -860,6 +860,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 sagaUniverse: existingBook.sagaUniverse,
                 pages: bundleBookData.pages,
                 originalPublicationYear: bundleBookData.publicationYear,
+                originalPublicationDate:
+                    bundleBookData.publicationYear ==
+                            existingBook.originalPublicationYear
+                        ? existingBook.originalPublicationDate
+                        : null,
                 loaned: existingBook.loaned,
                 statusValue: bundleBookData.status ?? existingBook.statusValue,
                 editorialValue: existingBook.editorialValue,
