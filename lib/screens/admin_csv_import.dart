@@ -768,9 +768,12 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.originalPublicationYear ??
                     existingBook.originalPublicationYear,
                 originalPublicationDate:
-                    bookWithMappedStatus.originalPublicationYear != null
-                        ? bookWithMappedStatus.originalPublicationDate
-                        : existingBook.originalPublicationDate,
+                    bookWithMappedStatus.originalPublicationDate ??
+                    (bookWithMappedStatus.originalPublicationYear == null ||
+                            bookWithMappedStatus.originalPublicationYear ==
+                                existingBook.originalPublicationYear
+                        ? existingBook.originalPublicationDate
+                        : null),
                 loaned:
                     bookWithMappedStatus.loaned?.isNotEmpty == true
                         ? bookWithMappedStatus.loaned
