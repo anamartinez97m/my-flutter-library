@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/search_match.dart';
 
 class ChipAutocompleteField extends StatefulWidget {
   final String labelText;
@@ -102,9 +103,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
               return const Iterable<String>.empty();
             }
             return widget.suggestions.where((String option) {
-              return option.toLowerCase().contains(
-                    textEditingValue.text.toLowerCase(),
-                  ) &&
+              return matchesSearch(option, textEditingValue.text) &&
                   !_selectedValues.contains(option);
             });
           },

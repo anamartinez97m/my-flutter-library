@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/search_match.dart';
 
 class AutocompleteTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -32,9 +33,7 @@ class AutocompleteTextField extends StatelessWidget {
           return const Iterable<String>.empty();
         }
         return suggestions.where((String option) {
-          return option.toLowerCase().contains(
-            textEditingValue.text.toLowerCase(),
-          );
+          return matchesSearch(option, textEditingValue.text);
         });
       },
       onSelected: (String selection) {
