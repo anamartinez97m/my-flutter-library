@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 47,
+      version: 48,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -119,6 +119,7 @@ class DatabaseHelper {
         asin VARCHAR(50),
         pages INTEGER,
         original_publication_year INTEGER,
+        original_publication_date TEXT,
         loaned BOOLEAN,
         language_id VARCHAR(50),
         place_id VARCHAR(50),
@@ -1613,6 +1614,37 @@ class DatabaseHelper {
     if (oldVersion < 47) {
       await createTropeTables(db);
     }
+    if (oldVersion < 48) {
+      await migratePublicationDates(db);
+    }
+  }
+
+  /// Adds `original_publication_date` and moves the `YYYYMMDD` values that
+  /// TBReleased books kept in `original_publication_year` into it, leaving
+  /// just the year behind. Books without a `release_date` get that date too.
+  static Future<void> migratePublicationDates(DatabaseExecutor db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(book)');
+    if (!columns.any((c) => c['name'] == 'original_publication_date')) {
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN original_publication_date TEXT',
+      );
+    }
+    await db.execute('''
+      UPDATE book SET
+        original_publication_date = printf('%04d-%02d-%02d',
+          original_publication_year / 10000,
+          (original_publication_year % 10000) / 100,
+          original_publication_year % 100),
+        release_date = CASE
+          WHEN release_date IS NULL OR release_date = ''
+          THEN printf('%04d-%02d-%02dT00:00:00.000',
+            original_publication_year / 10000,
+            (original_publication_year % 10000) / 100,
+            original_publication_year % 100)
+          ELSE release_date END,
+        original_publication_year = original_publication_year / 10000
+      WHERE original_publication_year > 9999
+    ''');
   }
 
   Future<void> closeDatabase() async {

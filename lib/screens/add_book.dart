@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/publication_date.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
+import 'package:myrandomlibrary/widgets/publication_date_fields.dart';
+import 'package:myrandomlibrary/widgets/release_notification_presets.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -51,6 +55,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _pagesController = TextEditingController();
   final _publicationYearController = TextEditingController();
   DateTime? _releaseDate;
+  int? _publicationMonth;
+  int? _publicationDay;
   final _genreController = TextEditingController();
   final _myReviewController = TextEditingController();
   final _notesController = TextEditingController();
@@ -141,33 +147,33 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return trimmed[0].toUpperCase() + trimmed.substring(1).toLowerCase();
   }
 
-  /// Get publication year or full date (YYYYMMDD) for TBReleased books
-  int? _getPublicationYearOrDate() {
-    final yearStr = _publicationYearController.text.trim();
-    if (yearStr.isEmpty) return null;
+  PublicationDate? _publicationDate() => PublicationDate.fromParts(
+    int.tryParse(_publicationYearController.text.trim()),
+    _publicationMonth,
+    _publicationDay,
+  );
 
-    final year = int.tryParse(yearStr);
-    if (year == null) return null;
-
-    // Check if this is a TBReleased book with release date
-    final isTBReleased =
-        _statusList.isNotEmpty &&
-        _selectedStatusId != null &&
-        _statusList.any(
-          (s) =>
-              s['status_id'] == _selectedStatusId &&
-              (s['value'] as String).toLowerCase() == 'tbreleased',
-        );
-
-    if (isTBReleased && _releaseDate != null) {
-      // Store as YYYYMMDD
-      return _releaseDate!.year * 10000 +
-          _releaseDate!.month * 100 +
-          _releaseDate!.day;
+  /// Sets the release date, which is also the publication date, and moves a
+  /// preset notification (release day, 1 day or 1 week before) along with it.
+  void _setReleaseDate(DateTime date) {
+    final offset = releaseNotificationOffset(
+      _releaseDate,
+      _notificationDateTime,
+    );
+    _releaseDate = date;
+    _publicationYearController.text = date.year.toString();
+    _publicationMonth = date.month;
+    _publicationDay = date.day;
+    if (offset != null && _notificationDateTime != null) {
+      _setNotificationDateTime(
+        releaseNotificationAt(date, offset, timeOf: _notificationDateTime),
+      );
     }
+  }
 
-    // Just return the year
-    return year;
+  void _setNotificationDateTime(DateTime value) {
+    _notificationDateTime = value;
+    _notificationTime = TimeOfDay.fromDateTime(value);
   }
 
   @override
@@ -218,6 +224,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return [
       ...controllers.map((c) => c.text.trim()),
       _releaseDate,
+      _publicationMonth,
+      _publicationDay,
       _myRating,
       _readCount,
       _ratingFields.map((f) => '${f.fieldName}=${f.ratingValue}').join(';'),
@@ -783,7 +791,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _pagesController.text.trim().isEmpty
                 ? null
                 : int.tryParse(_pagesController.text.trim()),
-        originalPublicationYear: _getPublicationYearOrDate(),
+        originalPublicationYear: _publicationDate()?.year,
+        originalPublicationDate: _publicationDate()?.toStorage(),
         loaned:
             (_selectedLoaned ?? 'no').toLowerCase(), // Normalize to lowercase
         statusValue: statusValue,
@@ -1015,6 +1024,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _universeReadingPositionController.clear();
       _pagesController.clear();
       _publicationYearController.clear();
+      _publicationMonth = null;
+      _publicationDay = null;
       _releaseDate = null;
       _notificationEnabled = false;
       _notificationDateTime = null;
@@ -1161,10 +1172,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       _selectedFormatSagaId = formatSagaId;
 
-      _publicationYearController.text =
-          book.originalPublicationYear != null
-              ? book.originalPublicationYear.toString()
-              : '';
+      final publicationDate = PublicationDate.fromBook(book);
+      _publicationYearController.text = publicationDate?.year.toString() ?? '';
+      _publicationMonth = publicationDate?.month;
+      _publicationDay = publicationDate?.day;
 
       _selectedLoaned = book.loaned;
 
@@ -1949,11 +1960,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
             }),
       ),
       const SizedBox(height: 10),
-      TextFormField(
-        controller: _publicationYearController,
-        decoration: _v2Deco(l10n.publication_year, Icons.calendar_today),
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      PublicationDateFields(
+        yearController: _publicationYearController,
+        month: _publicationMonth,
+        day: _publicationDay,
+        decoration: (label, icon) => _v2Deco(label, icon),
+        onChanged:
+            (month, day) => setState(() {
+              _publicationMonth = month;
+              _publicationDay = day;
+            }),
       ),
       if (_statusList.isNotEmpty &&
           _selectedStatusId != null &&
@@ -1963,15 +1979,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 (s['value'] as String).toLowerCase() == 'tbreleased',
           )) ...[
         const SizedBox(height: 10),
-        Text(
-          l10n.original_publication_date,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            color: _kPrimary,
-          ),
-        ),
-        const SizedBox(height: 6),
         InkWell(
           onTap: () async {
             final d = await showDatePicker(
@@ -1981,10 +1988,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               lastDate: DateTime(2100),
             );
             if (d != null) {
-              setState(() {
-                _releaseDate = d;
-                _publicationYearController.text = d.year.toString();
-              });
+              setState(() => _setReleaseDate(d));
             }
           },
           child: InputDecorator(
@@ -2038,7 +2042,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             onTap: () async {
               final d = await showDatePicker(
                 context: context,
-                initialDate: _notificationDateTime ?? DateTime.now(),
+                initialDate:
+                    _notificationDateTime != null &&
+                            _notificationDateTime!.isAfter(DateTime.now())
+                        ? _notificationDateTime!
+                        : DateTime.now(),
                 firstDate: DateTime.now(),
                 lastDate: DateTime(2100),
               );
@@ -2077,6 +2085,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
             ),
+          ),
+          ReleaseNotificationPresets(
+            releaseDate: _releaseDate,
+            notificationDateTime: _notificationDateTime,
+            onSelected:
+                (value) => setState(() => _setNotificationDateTime(value)),
           ),
         ],
       ],

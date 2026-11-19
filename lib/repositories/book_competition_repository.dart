@@ -20,7 +20,7 @@ class BookCompetitionRepository {
       SELECT DISTINCT b.book_id, s.value as statusValue, b.name, e.name as editorialValue,
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue,
         p.name as placeValue, f.value as formatValue,
-        fs.value as formatSagaValue, b.loaned, b.original_publication_year,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, b.original_publication_date,
         b.pages, b.created_at, b.date_read_initial, b.date_read_final,
         b.read_count,
         (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,

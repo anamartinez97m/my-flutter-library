@@ -14,6 +14,8 @@ class Book {
   final String? asin;
   final int? pages;
   final int? originalPublicationYear;
+  final String?
+  originalPublicationDate; // `YYYY-MM` or `YYYY-MM-DD`, null when only the year is known
   final String? loaned;
   final int? languageId = 0;
   final String? languageValue;
@@ -77,6 +79,7 @@ class Book {
     required this.asin,
     required this.pages,
     required this.originalPublicationYear,
+    this.originalPublicationDate,
     required this.loaned,
     required this.statusValue,
     required this.editorialValue,
@@ -142,6 +145,7 @@ class Book {
               : int.tryParse(
                 map['original_publication_year']?.toString() ?? '',
               ),
+      originalPublicationDate: map['original_publication_date'] as String?,
       loaned:
           map['loaned'] != null ? map['loaned'].toString().toLowerCase() : 'no',
       statusValue: map['statusValue'] as String?,
@@ -218,6 +222,7 @@ class Book {
       'asin': asin,
       'pages': pages,
       'originalPublicationYear': originalPublicationYear,
+      'originalPublicationDate': originalPublicationDate,
       'loaned': loaned,
       'statusValue': statusValue,
       'editorialValue': editorialValue,

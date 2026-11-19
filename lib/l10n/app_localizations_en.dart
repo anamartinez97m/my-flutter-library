@@ -2020,10 +2020,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get original_publication_date =>
-      'Original Publication Date (for notifications)';
-
-  @override
   String get release_date => 'Release Date';
 
   @override
@@ -2035,6 +2031,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notification_date_time => 'Notification Date & Time';
+
+  @override
+  String get publication_month => 'Month';
+
+  @override
+  String get publication_day => 'Day';
+
+  @override
+  String get notify_on_release_day => 'Release day';
+
+  @override
+  String get notify_one_day_before => '1 day before';
+
+  @override
+  String get notify_one_week_before => '1 week before';
+
+  @override
+  String get notification_after_release_warning =>
+      'The notification is after the release date';
 
   @override
   String get select_notification_date => 'Select notification date and time';

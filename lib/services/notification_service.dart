@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
 
 /// Top-level function required for background notification action handling.
 /// Must be a top-level or static function.
@@ -480,6 +481,38 @@ class NotificationService {
   Future<void> cancelNotification(int bookId) async {
     if (!_initialized) await initialize();
     await _notifications.cancel(bookId);
+  }
+
+  /// Re-creates upcoming release notifications from the database, so books
+  /// added by CSV import or backup restore get theirs too.
+  Future<int> rescheduleBookReleaseNotifications() async {
+    if (!_initialized) await initialize();
+    final db = await DatabaseHelper.instance.database;
+    final rows = await db.query(
+      'book',
+      columns: ['book_id', 'name', 'notification_datetime', 'release_date'],
+      where: 'notification_enabled = 1 AND notification_datetime IS NOT NULL',
+    );
+    final now = DateTime.now();
+    var scheduled = 0;
+    for (final row in rows) {
+      final scheduledDate = parseStoredDate(
+        row['notification_datetime'] as String?,
+      );
+      if (scheduledDate == null || !scheduledDate.isAfter(now)) continue;
+      try {
+        await scheduleBookReleaseNotification(
+          bookId: row['book_id'] as int,
+          bookTitle: row['name'] as String? ?? '',
+          scheduledDate: scheduledDate,
+          releaseDate: parseStoredDate(row['release_date'] as String?),
+        );
+        scheduled++;
+      } catch (e) {
+        debugPrint('Error rescheduling release notification: $e');
+      }
+    }
+    return scheduled;
   }
 
   Future<void> cancelAllNotifications() async {

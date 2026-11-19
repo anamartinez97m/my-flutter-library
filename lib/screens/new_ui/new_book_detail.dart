@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/config/app_theme.dart';
@@ -22,6 +23,8 @@ import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
+import 'package:myrandomlibrary/utils/publication_date.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
 import 'package:myrandomlibrary/widgets/log_reading_session_sheet.dart';
 import 'package:myrandomlibrary/screens/new_ui/reading_sessions_screen.dart';
@@ -2205,33 +2208,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  DateTime? get _releaseDate {
-    final storedReleaseDate = _currentBook.releaseDate;
-    if (storedReleaseDate != null && storedReleaseDate.isNotEmpty) {
-      final parsed = DateTime.tryParse(storedReleaseDate);
-      if (parsed != null) {
-        return DateTime(parsed.year, parsed.month, parsed.day);
-      }
-    }
-
-    final publicationDate = _currentBook.originalPublicationYear;
-    if (publicationDate != null && publicationDate > 9999) {
-      return DateTime(
-        publicationDate ~/ 10000,
-        (publicationDate % 10000) ~/ 100,
-        publicationDate % 100,
-      );
-    }
-
-    final notificationDate = _currentBook.notificationDatetime;
-    if (notificationDate != null && notificationDate.isNotEmpty) {
-      final parsed = DateTime.tryParse(notificationDate);
-      if (parsed != null) {
-        return DateTime(parsed.year, parsed.month, parsed.day);
-      }
-    }
-    return null;
-  }
+  DateTime? get _releaseDate => bookReleaseDate(_currentBook);
 
   Widget _buildReleaseCountdown() {
     final l10n = AppLocalizations.of(context)!;
@@ -2307,46 +2284,22 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  /// Build publication info - shows year and optionally full date for TBReleased books
-  List<Widget> _buildPublicationInfo(int pubYearOrDate) {
-    final widgets = <Widget>[];
-
-    // Check if it's a full date (YYYYMMDD format, > 9999)
-    if (pubYearOrDate > 9999) {
-      final year = pubYearOrDate ~/ 10000;
-      final month = (pubYearOrDate % 10000) ~/ 100;
-      final day = pubYearOrDate % 100;
-
-      // Add year card
-      widgets.add(
-        _DetailCard(
-          icon: Icons.calendar_today,
-          label: AppLocalizations.of(context)!.original_publication_year_label,
-          value: year.toString(),
-        ),
-      );
-
-      // Add full date card
-      widgets.add(
+  /// Publication year, plus the month or exact date when known.
+  List<Widget> _buildPublicationInfo(PublicationDate date) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      _DetailCard(
+        icon: Icons.calendar_today,
+        label: l10n.original_publication_year_label,
+        value: date.year.toString(),
+      ),
+      if (date.hasMonth)
         _DetailCard(
           icon: Icons.event,
-          label: AppLocalizations.of(context)!.original_publication_date_label,
-          value:
-              '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year',
+          label: l10n.original_publication_date_label,
+          value: date.format(Localizations.localeOf(context).toString()),
         ),
-      );
-    } else {
-      // Just a year
-      widgets.add(
-        _DetailCard(
-          icon: Icons.calendar_today,
-          label: AppLocalizations.of(context)!.original_publication_year_label,
-          value: pubYearOrDate.toString(),
-        ),
-      );
-    }
-
-    return widgets;
+    ];
   }
 
   Future<void> _deleteBook(BuildContext context) async {
@@ -3401,9 +3354,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           }
 
                           // Original publication year/date
-                          if (_currentBook.originalPublicationYear != null) {
+                          final publicationDate = PublicationDate.fromBook(
+                            _currentBook,
+                          );
+                          if (publicationDate != null) {
                             for (final w in _buildPublicationInfo(
-                              _currentBook.originalPublicationYear!,
+                              publicationDate,
                             )) {
                               addCell(w);
                             }
@@ -4002,7 +3958,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                       // Notification Badge
                       if (_currentBook.notificationEnabled == true &&
-                          _currentBook.notificationDatetime != null)
+                          parseStoredDate(_currentBook.notificationDatetime) !=
+                              null)
                         Card(
                           elevation: 1,
                           margin: const EdgeInsets.only(bottom: 12),
@@ -4024,10 +3981,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             ),
                             subtitle: Text(
                               AppLocalizations.of(context)!.scheduled_for(
-                                formatDateForDisplay(
-                                  _currentBook.notificationDatetime!.split(
-                                    'T',
-                                  )[0],
+                                DateFormat('dd/MM/yyyy HH:mm').format(
+                                  parseStoredDate(
+                                    _currentBook.notificationDatetime,
+                                  )!,
                                 ),
                               ),
                             ),
