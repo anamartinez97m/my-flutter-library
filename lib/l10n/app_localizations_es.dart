@@ -4771,4 +4771,24 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get club_add_target_hint =>
       'Añade una fecha objetivo para ver tu meta diaria';
+
+  @override
+  String get cover_and_description => 'Portada y descripción';
+
+  @override
+  String get cover_image_url => 'URL de la imagen de portada';
+
+  @override
+  String get cover_image_url_hint => 'Pega el enlace de la imagen de portada';
+
+  @override
+  String get book_description => 'Descripción';
+
+  @override
+  String get manual_metadata_hint =>
+      'Si los cambias, al actualizar el libro no se sustituirán. Vacía ambos para volver a buscarlos.';
+
+  @override
+  String get metadata_set_manually =>
+      'La portada y la descripción se pusieron a mano. Vacíalas en Editar libro para volver a buscarlas.';
 }

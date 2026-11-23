@@ -19,6 +19,8 @@ import 'package:myrandomlibrary/screens/books_by_author.dart';
 import 'package:myrandomlibrary/screens/books_by_editorial.dart';
 import 'package:myrandomlibrary/screens/books_by_genre.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
+import 'package:myrandomlibrary/utils/manual_metadata.dart';
+import 'package:myrandomlibrary/utils/metadata_match.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
@@ -410,10 +412,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         );
       }
 
-      // If no result, try ASIN
+      // If no result, try the ASIN when it is a print book's ISBN-10
+      // (Kindle ASINs aren't ISBNs and would find a random book)
       if (metadata == null &&
-          _currentBook.asin != null &&
-          _currentBook.asin!.isNotEmpty) {
+          MetadataMatch.cleanIsbn(_currentBook.asin) != null) {
         debugPrint(
           '[BookDetail] ISBN failed, trying with ASIN: ${_currentBook.asin}',
         );
@@ -526,6 +528,16 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   /// Force refetch metadata (useful when ISBN/ASIN changes)
   Future<void> _refetchMetadata() async {
     if (_isFetchingMetadata) return;
+
+    if (_currentBook.metadataSource == manualMetadataSource) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.metadata_set_manually),
+          backgroundColor: AppTheme.notificationColor,
+        ),
+      );
+      return;
+    }
 
     try {
       // Clear existing metadata first

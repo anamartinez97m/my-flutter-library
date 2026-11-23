@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../model/book_metadata.dart';
+import '../utils/metadata_match.dart';
 
 /// Service for fetching book metadata from Google Books API
 /// API Documentation: https://developers.google.com/books/docs/v1/using
@@ -22,20 +23,25 @@ class GoogleBooksService {
   /// Fetch book metadata by ISBN
   /// Preferred method as ISBN provides most accurate results
   /// [language] - Optional language code to filter results (e.g., 'en', 'es')
-  Future<BookMetadata?> fetchByIsbn(String isbn, {String? language}) async {
+  /// A result is accepted when it lists [isbn] among its identifiers, or
+  /// otherwise when it matches [title] and [author].
+  Future<BookMetadata?> fetchByIsbn(
+    String isbn, {
+    String? language,
+    String? title,
+    String? author,
+  }) async {
     try {
-      await _throttleRequest();
-
-      // Clean ISBN (remove hyphens, spaces)
-      final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
-
-      if (cleanIsbn.isEmpty) {
-        debugPrint('[GoogleBooks] Invalid ISBN: $isbn');
+      final cleanIsbn = MetadataMatch.cleanIsbn(isbn);
+      if (cleanIsbn == null) {
+        debugPrint('[GoogleBooks] Not an ISBN: $isbn');
         return null;
       }
 
+      await _throttleRequest();
+
       // Build URL with optional language restriction
-      String urlString = '$_baseUrl&q=isbn:$cleanIsbn';
+      String urlString = '$_baseUrl&q=isbn:$cleanIsbn&maxResults=5';
       if (language != null && language.isNotEmpty) {
         final langCode = _mapLanguageCode(language);
         if (langCode != null) {
@@ -52,15 +58,30 @@ class GoogleBooksService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final items = data['items'] as List<dynamic>?;
 
-        if (items != null && items.isNotEmpty) {
-          final bookData = items[0] as Map<String, dynamic>;
+        final candidates =
+            (items ?? const []).whereType<Map<String, dynamic>>().toList();
+        final bookData =
+            _firstWhereOrNull(
+              candidates,
+              (item) => _identifiers(item).contains(cleanIsbn),
+            ) ??
+            (title == null
+                ? null
+                : _firstWhereOrNull(
+                  candidates,
+                  (item) => _matches(item, title, author),
+                ));
+        if (bookData != null) {
           final metadata = _parseGoogleBooksResponse(bookData);
           debugPrint(
             '[GoogleBooks] Successfully fetched by ISBN: ${metadata.title}',
           );
           return metadata;
         } else {
-          debugPrint('[GoogleBooks] No results found for ISBN: $cleanIsbn');
+          debugPrint(
+            '[GoogleBooks] No matching result for ISBN: $cleanIsbn '
+            '(${candidates.length} results)',
+          );
         }
       } else {
         debugPrint('[GoogleBooks] API error: ${response.statusCode}');
@@ -96,7 +117,7 @@ class GoogleBooksService {
       }
 
       // Build URL with optional language restriction
-      String urlString = '$_baseUrl&q=$query&maxResults=1';
+      String urlString = '$_baseUrl&q=$query&maxResults=10';
       if (language != null && language.isNotEmpty) {
         final langCode = _mapLanguageCode(language);
         if (langCode != null) {
@@ -113,15 +134,27 @@ class GoogleBooksService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final items = data['items'] as List<dynamic>?;
 
-        if (items != null && items.isNotEmpty) {
-          final bookData = items[0] as Map<String, dynamic>;
-          final metadata = _parseGoogleBooksResponse(bookData);
+        final matches =
+            (items ?? const [])
+                .whereType<Map<String, dynamic>>()
+                .where((item) => _matches(item, title, author))
+                .map(_parseGoogleBooksResponse)
+                .toList();
+        if (matches.isNotEmpty) {
+          // Among the editions of the same book, prefer the most complete one.
+          final metadata =
+              _firstWhereOrNull(matches, (m) => m.isComplete) ??
+              _firstWhereOrNull(matches, (m) => m.hasDescription) ??
+              matches.first;
           debugPrint(
             '[GoogleBooks] Successfully fetched by title/author: ${metadata.title}',
           );
           return metadata;
         } else {
-          debugPrint('[GoogleBooks] No results found for: $query');
+          debugPrint(
+            '[GoogleBooks] No result matching "$title" / "$author" '
+            '(${items?.length ?? 0} results for: $query)',
+          );
         }
       } else {
         debugPrint('[GoogleBooks] API error: ${response.statusCode}');
@@ -275,6 +308,39 @@ class GoogleBooksService {
       source: 'google_books',
       fetchedAt: DateTime.now(),
     );
+  }
+
+  Set<String> _identifiers(Map<String, dynamic> item) {
+    final volumeInfo = item['volumeInfo'] as Map<String, dynamic>? ?? {};
+    final identifiers = volumeInfo['industryIdentifiers'] as List<dynamic>?;
+    return {
+      for (final identifier in identifiers ?? const [])
+        if (identifier is Map &&
+            MetadataMatch.cleanIsbn(identifier['identifier'] as String?) !=
+                null)
+          MetadataMatch.cleanIsbn(identifier['identifier'] as String?)!,
+    };
+  }
+
+  bool _matches(Map<String, dynamic> item, String title, String? author) {
+    final volumeInfo = item['volumeInfo'] as Map<String, dynamic>? ?? {};
+    return MetadataMatch.isSameBook(
+      expectedTitle: title,
+      expectedAuthor: author,
+      candidateTitle: volumeInfo['title'] as String?,
+      candidateSubtitle: volumeInfo['subtitle'] as String?,
+      candidateAuthors:
+          (volumeInfo['authors'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(),
+    );
+  }
+
+  T? _firstWhereOrNull<T>(Iterable<T> items, bool Function(T) test) {
+    for (final item in items) {
+      if (test(item)) return item;
+    }
+    return null;
   }
 
   /// Sanitize query string for URL encoding

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../model/book_metadata.dart';
+import '../utils/metadata_match.dart';
 
 /// Service for fetching book metadata from Open Library API
 /// API Documentation: https://openlibrary.org/dev/docs/api/books
@@ -17,15 +18,13 @@ class OpenLibraryService {
   /// Fetch book metadata by ISBN
   Future<BookMetadata?> fetchByIsbn(String isbn) async {
     try {
-      await _throttleRequest();
-
-      // Clean ISBN
-      final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
-
-      if (cleanIsbn.isEmpty) {
-        debugPrint('[OpenLibrary] Invalid ISBN: $isbn');
+      final cleanIsbn = MetadataMatch.cleanIsbn(isbn);
+      if (cleanIsbn == null) {
+        debugPrint('[OpenLibrary] Not an ISBN: $isbn');
         return null;
       }
+
+      await _throttleRequest();
 
       final url = Uri.parse(
         '$_baseUrl/api/books?bibkeys=ISBN:$cleanIsbn&format=json&jscmd=data',
@@ -75,7 +74,7 @@ class OpenLibraryService {
       }
 
       final url = Uri.parse(
-        '$_baseUrl/search.json?q=${Uri.encodeComponent(query)}&limit=1',
+        '$_baseUrl/search.json?q=${Uri.encodeComponent(query)}&limit=10',
       );
       debugPrint('[OpenLibrary] Searching by title: $query');
 
@@ -85,15 +84,37 @@ class OpenLibraryService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final docs = data['docs'] as List<dynamic>?;
 
-        if (docs != null && docs.isNotEmpty) {
-          final bookData = docs[0] as Map<String, dynamic>;
-          final metadata = _parseOpenLibrarySearchResponse(bookData);
+        final matches =
+            (docs ?? const [])
+                .whereType<Map<String, dynamic>>()
+                .where(
+                  (doc) => MetadataMatch.isSameBook(
+                    expectedTitle: title,
+                    expectedAuthor: author,
+                    candidateTitle: doc['title'] as String?,
+                    candidateSubtitle: doc['subtitle'] as String?,
+                    candidateAuthors:
+                        (doc['author_name'] as List<dynamic>?)
+                            ?.whereType<String>()
+                            .toList(),
+                  ),
+                )
+                .map(_parseOpenLibrarySearchResponse)
+                .toList();
+        if (matches.isNotEmpty) {
+          final metadata = matches.firstWhere(
+            (m) => m.hasCover,
+            orElse: () => matches.first,
+          );
           debugPrint(
             '[OpenLibrary] Successfully fetched by title: ${metadata.title}',
           );
           return metadata;
         } else {
-          debugPrint('[OpenLibrary] No results found for: $query');
+          debugPrint(
+            '[OpenLibrary] No result matching "$title" / "$author" '
+            '(${docs?.length ?? 0} results for: $query)',
+          );
         }
       } else {
         debugPrint('[OpenLibrary] API error: ${response.statusCode}');

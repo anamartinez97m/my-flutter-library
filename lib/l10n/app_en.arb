@@ -2085,5 +2085,11 @@
   },
   "club_target_passed": "Target date passed",
   "club_book_finished": "Book finished",
-  "club_add_target_hint": "Add a target date to see your daily goal"
+  "club_add_target_hint": "Add a target date to see your daily goal",
+  "cover_and_description": "Cover & Description",
+  "cover_image_url": "Cover image URL",
+  "cover_image_url_hint": "Paste a link to the cover image",
+  "book_description": "Description",
+  "manual_metadata_hint": "If you change these, refreshing the book won't replace them. Clear both to fetch them again.",
+  "metadata_set_manually": "The cover and description were set manually. Clear them in Edit Book to fetch them again."
 }

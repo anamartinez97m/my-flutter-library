@@ -8375,6 +8375,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a target date to see your daily goal'**
   String get club_add_target_hint;
+
+  /// No description provided for @cover_and_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover & Description'**
+  String get cover_and_description;
+
+  /// No description provided for @cover_image_url.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover image URL'**
+  String get cover_image_url;
+
+  /// No description provided for @cover_image_url_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a link to the cover image'**
+  String get cover_image_url_hint;
+
+  /// No description provided for @book_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get book_description;
+
+  /// No description provided for @manual_metadata_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you change these, refreshing the book won\'t replace them. Clear both to fetch them again.'**
+  String get manual_metadata_hint;
+
+  /// No description provided for @metadata_set_manually.
+  ///
+  /// In en, this message translates to:
+  /// **'The cover and description were set manually. Clear them in Edit Book to fetch them again.'**
+  String get metadata_set_manually;
 }
 
 class _AppLocalizationsDelegate

@@ -28,6 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/utils/manual_metadata.dart';
 import '../config/app_theme.dart';
 
 class AddBookScreen extends StatefulWidget {
@@ -60,6 +61,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _genreController = TextEditingController();
   final _myReviewController = TextEditingController();
   final _notesController = TextEditingController();
+  final _coverUrlController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _acquiredYearController = TextEditingController();
   double _myRating = 0.0;
@@ -197,6 +200,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           placeholder.orderWithinUniverse?.toString() ?? '';
       _notesController.text = placeholder.notes ?? '';
       _fetchedCoverUrl = placeholder.coverUrl;
+      _coverUrlController.text = placeholder.coverUrl ?? '';
     }
     _initialFormSnapshot = _formSnapshot();
     _loadDropdownData();
@@ -218,6 +222,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _genreController,
       _myReviewController,
       _notesController,
+      _coverUrlController,
+      _descriptionController,
       _priceController,
       _acquiredYearController,
     ];
@@ -250,8 +256,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _selectedGenres.join(','),
       _selectedTropes.join(','),
       _selectedEditorial.join(','),
-      _fetchedDescription,
-      _fetchedCoverUrl,
     ].join('\u0000');
   }
 
@@ -760,6 +764,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   as String?
               : null;
 
+      final metadataFields = resolveMetadataFields(
+        coverText: _coverUrlController.text,
+        descriptionText: _descriptionController.text,
+        fetchedCoverUrl: _fetchedCoverUrl,
+        fetchedDescription: _fetchedDescription,
+        fetchedSource: _fetchedMetadataSource,
+        fetchedAt:
+            _fetchedMetadataSource != null
+                ? DateTime.now().toIso8601String()
+                : null,
+      );
+
       final book = Book(
         bookId: null,
         name:
@@ -840,13 +856,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ? null
                 : double.tryParse(_priceController.text.trim()),
         ratingOverride: _ratingOverride,
-        description: _fetchedDescription,
-        coverUrl: _fetchedCoverUrl,
-        metadataSource: _fetchedMetadataSource,
-        metadataFetchedAt:
-            _fetchedMetadataSource != null
-                ? DateTime.now().toIso8601String()
-                : null,
+        description: metadataFields.description,
+        coverUrl: metadataFields.coverUrl,
+        metadataSource: metadataFields.source,
+        metadataFetchedAt: metadataFields.fetchedAt,
         acquiredDate: _getAcquiredDate(),
         orderWithinUniverse:
             _sagaUniverseController.text.trim().isEmpty
@@ -1062,6 +1075,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _fetchedDescription = null;
         _fetchedCoverUrl = null;
         _fetchedMetadataSource = null;
+        _coverUrlController.clear();
+        _descriptionController.clear();
         _pagesFetchedFromApi = false;
       });
       _seriesGenreAutofill = SeriesGenreAutofill();
@@ -1199,6 +1214,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _fetchedCoverUrl = book.coverUrl;
       _fetchedDescription = book.description;
       _fetchedMetadataSource = book.metadataSource;
+      _coverUrlController.text = book.coverUrl ?? '';
+      _descriptionController.text = book.description ?? '';
 
       _tbr = book.tbr ?? false;
       _isTandem = book.isTandem ?? false;
@@ -1269,6 +1286,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _genreController.dispose();
     _myReviewController.dispose();
     _notesController.dispose();
+    _coverUrlController.dispose();
+    _descriptionController.dispose();
     _priceController.dispose();
     _acquiredYearController.dispose();
     super.dispose();
@@ -1531,6 +1550,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _fetchedDescription = metadata.description;
           _fetchedCoverUrl = metadata.bestCoverUrl;
           _fetchedMetadataSource = metadata.source;
+          _descriptionController.text = metadata.description ?? '';
+          _coverUrlController.text = metadata.bestCoverUrl ?? '';
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1700,6 +1721,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         ..._v2BookListsSection(context, l10n),
                         _v2Divider(),
                         ..._v2Bundle(context, l10n),
+                        _v2Divider(),
+                        ..._v2CoverDescription(context, l10n),
                         _v2Divider(),
                         ..._v2Notes(context, l10n),
                         const SizedBox(height: 16),
@@ -2678,6 +2701,43 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _bundleBooks = books;
           });
         },
+      ),
+    ];
+  }
+
+  List<Widget> _v2CoverDescription(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    return [
+      _v2SectionHeading(l10n.cover_and_description),
+      TextFormField(
+        controller: _coverUrlController,
+        decoration: _v2Deco(
+          l10n.cover_image_url,
+          Icons.image_outlined,
+          hint: l10n.cover_image_url_hint,
+        ),
+        keyboardType: TextInputType.url,
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _descriptionController,
+        decoration: _v2Deco(
+          l10n.book_description,
+          Icons.subject,
+          notesStyle: true,
+        ),
+        maxLines: 6,
+        keyboardType: TextInputType.multiline,
+        textCapitalization: TextCapitalization.sentences,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 6, left: 12),
+        child: Text(
+          l10n.manual_metadata_hint,
+          style: TextStyle(fontSize: 12, color: V2Colors.textSecondary),
+        ),
       ),
     ];
   }
