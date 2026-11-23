@@ -8375,6 +8375,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a target date to see your daily goal'**
   String get club_add_target_hint;
+
+  /// No description provided for @book_details_section_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get book_details_section_reading;
+
+  /// No description provided for @book_details_section_author_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Author & genre'**
+  String get book_details_section_author_genre;
+
+  /// No description provided for @book_details_section_series.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get book_details_section_series;
+
+  /// No description provided for @book_details_section_edition.
+  ///
+  /// In en, this message translates to:
+  /// **'Edition'**
+  String get book_details_section_edition;
+
+  /// No description provided for @book_details_section_my_copy.
+  ///
+  /// In en, this message translates to:
+  /// **'My copy'**
+  String get book_details_section_my_copy;
+
+  /// No description provided for @release_date_precision_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get release_date_precision_year;
+
+  /// No description provided for @release_date_select_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Select month'**
+  String get release_date_select_month;
+
+  /// No description provided for @release_date_hint_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as \"{example}\". Type the year.'**
+  String release_date_hint_year(String example);
+
+  /// No description provided for @release_date_hint_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as \"{example}\". Pick the month and year.'**
+  String release_date_hint_month(String example);
+
+  /// No description provided for @release_date_hint_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown as \"{example}\". Pick the exact day.'**
+  String release_date_hint_day(String example);
 }
 
 class _AppLocalizationsDelegate

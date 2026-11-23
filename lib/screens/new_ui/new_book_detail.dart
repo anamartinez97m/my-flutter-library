@@ -2208,6 +2208,66 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
+  Widget _buildDetailSection(_DetailSection section, List<_BentoEntry> cells) {
+    final l10n = AppLocalizations.of(context)!;
+    final (icon, title) = switch (section) {
+      _DetailSection.reading => (
+        Icons.bookmark,
+        l10n.book_details_section_reading,
+      ),
+      _DetailSection.authorGenre => (
+        Icons.person,
+        l10n.book_details_section_author_genre,
+      ),
+      _DetailSection.series => (
+        Icons.collections_bookmark,
+        l10n.book_details_section_series,
+      ),
+      _DetailSection.edition => (
+        Icons.menu_book,
+        l10n.book_details_section_edition,
+      ),
+      _DetailSection.myCopy => (
+        Icons.inventory_2,
+        l10n.book_details_section_my_copy,
+      ),
+    };
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      decoration: BoxDecoration(
+        color: _kPrimary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 15, color: _kSub),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1,
+                    color: _kSub,
+                    fontFamily: V2Typography.family,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildBentoGrid(cells),
+        ],
+      ),
+    );
+  }
+
   DateTime? get _releaseDate => bookReleaseDate(_currentBook);
 
   Widget _buildReleaseCountdown() {
@@ -2993,21 +3053,27 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                         ],
                       ),
 
-                      // Details grid (bento style) - Status, Author, ISBN, ASIN,
-                      // Editorial, Genre, Saga, Pages, Publication info, etc.
+                      // Details, grouped into sections (Reading, Author & genre,
+                      // Series, Edition, My copy). Empty sections are hidden.
                       Builder(
                         builder: (context) {
-                          final entries = <_BentoEntry>[];
+                          final sections = {
+                            for (final section in _DetailSection.values)
+                              section: <_BentoEntry>[],
+                          };
+                          var section = _DetailSection.reading;
 
                           void addCell(Widget? cell, {bool fullWidth = false}) {
                             if (cell != null) {
-                              entries.add(
+                              sections[section]!.add(
                                 _BentoEntry(cell, fullWidth: fullWidth),
                               );
                             }
                           }
 
-                          // Status - MOVED TO TOP
+                          section = _DetailSection.reading;
+
+                          // Status
                           if (_currentBook.statusValue != null &&
                               _currentBook.statusValue!.isNotEmpty) {
                             addCell(
@@ -3033,6 +3099,18 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       : AppLocalizations.of(context)!.no,
                             ),
                           );
+
+                          // Times read
+                          if (_currentBook.readCount != null &&
+                              _currentBook.readCount! > 0) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.add,
+                                label: AppLocalizations.of(context)!.times_read,
+                                value: '${_currentBook.readCount}',
+                              ),
+                            );
+                          }
 
                           // Original Book (for repeated books)
                           if (_currentBook.originalBookId != null) {
@@ -3076,6 +3154,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               fullWidth: true,
                             );
                           }
+
+                          section = _DetailSection.authorGenre;
 
                           // Author
                           if (_currentBook.author != null &&
@@ -3126,30 +3206,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
-                          // ISBN
-                          if (_currentBook.isbn != null &&
-                              _currentBook.isbn!.isNotEmpty) {
-                            addCell(
-                              _DetailCard(
-                                icon: Icons.numbers,
-                                label: 'ISBN',
-                                value: _currentBook.isbn!,
-                              ),
-                            );
-                          }
-
-                          // ASIN
-                          if (_currentBook.asin != null &&
-                              _currentBook.asin!.isNotEmpty) {
-                            addCell(
-                              _DetailCard(
-                                icon: Icons.qr_code,
-                                label: 'ASIN',
-                                value: _currentBook.asin!,
-                              ),
-                            );
-                          }
-
                           // Genre
                           if (_currentBook.genre != null &&
                               _currentBook.genre!.isNotEmpty) {
@@ -3172,11 +3228,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     ),
                                   );
                                 },
-                                child: _DetailCard(
+                                child: _ChipsDetailCard(
                                   icon: Icons.category,
                                   label: AppLocalizations.of(context)!.genre,
-                                  value: genres.join('\n'),
-                                  link: true,
+                                  values: genres,
+                                  selected: true,
                                 ),
                               ),
                               fullWidth: true,
@@ -3206,19 +3262,20 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     ),
                                   );
                                 },
-                                child: _DetailCard(
+                                child: _ChipsDetailCard(
                                   icon: Icons.local_offer_outlined,
                                   label:
                                       AppLocalizations.of(
                                         context,
                                       )!.dropdown_tropes,
-                                  value: tropes.join('\n'),
-                                  link: true,
+                                  values: tropes,
                                 ),
                               ),
                               fullWidth: true,
                             );
                           }
+
+                          section = _DetailSection.series;
 
                           // Saga
                           if (_currentBook.saga != null &&
@@ -3334,6 +3391,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
+                          section = _DetailSection.edition;
+
                           // Editorial
                           if (_currentBook.editorialValue != null &&
                               _currentBook.editorialValue!.isNotEmpty) {
@@ -3404,6 +3463,32 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
+                          // ISBN
+                          if (_currentBook.isbn != null &&
+                              _currentBook.isbn!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.numbers,
+                                label: 'ISBN',
+                                value: _currentBook.isbn!,
+                              ),
+                            );
+                          }
+
+                          // ASIN
+                          if (_currentBook.asin != null &&
+                              _currentBook.asin!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.qr_code,
+                                label: 'ASIN',
+                                value: _currentBook.asin!,
+                              ),
+                            );
+                          }
+
+                          section = _DetailSection.myCopy;
+
                           // Price
                           if (_currentBook.price != null &&
                               _currentBook.price! >= 0) {
@@ -3462,18 +3547,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
-                          // Times read
-                          if (_currentBook.readCount != null &&
-                              _currentBook.readCount! > 0) {
-                            addCell(
-                              _DetailCard(
-                                icon: Icons.add,
-                                label: AppLocalizations.of(context)!.times_read,
-                                value: '${_currentBook.readCount}',
-                              ),
-                            );
-                          }
-
                           // Created At
                           if (_currentBook.createdAt != null &&
                               _currentBook.createdAt!.isNotEmpty) {
@@ -3487,7 +3560,14 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
-                          return _buildBentoGrid(entries);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (final entry in sections.entries)
+                                if (entry.value.isNotEmpty)
+                                  _buildDetailSection(entry.key, entry.value),
+                            ],
+                          );
                         },
                       ),
                       AppTheme.verticalSpaceLarge,
@@ -4398,6 +4478,8 @@ class _HalfClipper extends CustomClipper<Rect> {
 /// A single entry to be laid out by [_NewBookDetailScreenState._buildBentoGrid].
 /// Entries marked [fullWidth] occupy their own row; others are paired two
 /// per row in the order they were added.
+enum _DetailSection { reading, authorGenre, series, edition, myCopy }
+
 class _BentoEntry {
   final Widget child;
   final bool fullWidth;
@@ -4457,6 +4539,78 @@ class _FullWidthActionButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Detail cell whose values are shown as chips (genres, tropes). [selected]
+/// uses the filled chip style.
+class _ChipsDetailCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final List<String> values;
+  final bool selected;
+
+  const _ChipsDetailCard({
+    required this.icon,
+    required this.label,
+    required this.values,
+    this.selected = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 15, color: primaryColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final value in values)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: selected ? V2Colors.chipSelected : V2Colors.chip,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  value,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color:
+                        selected
+                            ? V2Colors.chipTextSelected
+                            : V2Colors.chipText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

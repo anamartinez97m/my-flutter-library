@@ -4717,4 +4717,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get club_add_target_hint => 'Add a target date to see your daily goal';
+
+  @override
+  String get book_details_section_reading => 'Reading';
+
+  @override
+  String get book_details_section_author_genre => 'Author & genre';
+
+  @override
+  String get book_details_section_series => 'Series';
+
+  @override
+  String get book_details_section_edition => 'Edition';
+
+  @override
+  String get book_details_section_my_copy => 'My copy';
+
+  @override
+  String get release_date_precision_year => 'Year';
+
+  @override
+  String get release_date_select_month => 'Select month';
+
+  @override
+  String release_date_hint_year(String example) {
+    return 'Shown as \"$example\". Type the year.';
+  }
+
+  @override
+  String release_date_hint_month(String example) {
+    return 'Shown as \"$example\". Pick the month and year.';
+  }
+
+  @override
+  String release_date_hint_day(String example) {
+    return 'Shown as \"$example\". Pick the exact day.';
+  }
 }
