@@ -129,4 +129,25 @@ void main() {
       expect(result.fetchedAt, isNull);
     });
   });
+
+  group('MetadataMatch.preferExactTitle', () {
+    test('prefers the exact title over a sequel', () {
+      expect(MetadataMatch.titleMatches('Dune', 'Dune Messiah'), isTrue);
+      expect(
+        MetadataMatch.preferExactTitle(
+          ['Dune Messiah', 'Dune: Deluxe Edition'],
+          'Dune',
+          (t) => t,
+        ),
+        ['Dune: Deluxe Edition'],
+      );
+    });
+
+    test('keeps all matches when none is exact', () {
+      expect(
+        MetadataMatch.preferExactTitle(['Dune Messiah'], 'Dune', (t) => t),
+        ['Dune Messiah'],
+      );
+    });
+  });
 }

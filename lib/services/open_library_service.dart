@@ -84,23 +84,26 @@ class OpenLibraryService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final docs = data['docs'] as List<dynamic>?;
 
-        final matches =
-            (docs ?? const [])
-                .whereType<Map<String, dynamic>>()
-                .where(
-                  (doc) => MetadataMatch.isSameBook(
-                    expectedTitle: title,
-                    expectedAuthor: author,
-                    candidateTitle: doc['title'] as String?,
-                    candidateSubtitle: doc['subtitle'] as String?,
-                    candidateAuthors:
-                        (doc['author_name'] as List<dynamic>?)
-                            ?.whereType<String>()
-                            .toList(),
-                  ),
-                )
-                .map(_parseOpenLibrarySearchResponse)
-                .toList();
+        final matches = MetadataMatch.preferExactTitle(
+          (docs ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .where(
+                (doc) => MetadataMatch.isSameBook(
+                  expectedTitle: title,
+                  expectedAuthor: author,
+                  candidateTitle: doc['title'] as String?,
+                  candidateSubtitle: doc['subtitle'] as String?,
+                  candidateAuthors:
+                      (doc['author_name'] as List<dynamic>?)
+                          ?.whereType<String>()
+                          .toList(),
+                ),
+              )
+              .map(_parseOpenLibrarySearchResponse)
+              .toList(),
+          title,
+          (m) => m.title,
+        );
         if (matches.isNotEmpty) {
           final metadata = matches.firstWhere(
             (m) => m.hasCover,

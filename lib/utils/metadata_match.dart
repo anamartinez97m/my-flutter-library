@@ -49,6 +49,26 @@ class MetadataMatch {
         candidateMain.length * 2 >= expectedMain.length;
   }
 
+  /// Whether [candidateTitle] is [expected] itself, ignoring subtitles and
+  /// series notes, rather than a related title such as a sequel.
+  static bool titleIsExact(String? expected, String? candidateTitle) =>
+      _sameSet(
+        _tokens(_mainTitle(expected)),
+        _tokens(_mainTitle(candidateTitle)),
+      );
+
+  /// The [matches] whose title is exactly [expected], or all of them when
+  /// none is ("Dune" is preferred over "Dune Messiah").
+  static List<T> preferExactTitle<T>(
+    List<T> matches,
+    String? expected,
+    String? Function(T match) titleOf,
+  ) {
+    final exact =
+        matches.where((m) => titleIsExact(expected, titleOf(m))).toList();
+    return exact.isEmpty ? matches : exact;
+  }
+
   /// Whether one of [candidateAuthors] shares a name with one of the authors
   /// in [expected] (comma, `;`, `&` or `y`/`and` separated). True when either
   /// side has no author, since the title check then has to decide alone.
