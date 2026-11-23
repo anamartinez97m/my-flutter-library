@@ -471,8 +471,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             'metadata_source': metadata.source,
             'metadata_fetched_at': DateTime.now().toIso8601String(),
           },
-          where: 'book_id = ?',
-          whereArgs: [_currentBook.bookId!],
+          // Skip if the cover/description was set manually meanwhile.
+          where:
+              'book_id = ? AND '
+              '(metadata_source IS NULL OR metadata_source != ?)',
+          whereArgs: [_currentBook.bookId!, manualMetadataSource],
         );
 
         // Reload book to get updated metadata
@@ -502,8 +505,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         await db.update(
           'book',
           {'metadata_fetched_at': DateTime.now().toIso8601String()},
-          where: 'book_id = ?',
-          whereArgs: [_currentBook.bookId!],
+          // Skip if the cover/description was set manually meanwhile.
+          where:
+              'book_id = ? AND '
+              '(metadata_source IS NULL OR metadata_source != ?)',
+          whereArgs: [_currentBook.bookId!, manualMetadataSource],
         );
         if (mounted) {
           setState(() {
