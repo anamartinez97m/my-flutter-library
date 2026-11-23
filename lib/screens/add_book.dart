@@ -1187,6 +1187,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _publicationYearController.text = publicationDate?.year.toString() ?? '';
       _publicationMonth = publicationDate?.month;
       _publicationDay = publicationDate?.day;
+      _syncReleaseDate();
 
       _selectedLoaned = book.loaned;
 
