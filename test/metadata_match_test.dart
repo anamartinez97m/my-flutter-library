@@ -150,4 +150,32 @@ void main() {
       );
     });
   });
+
+  group('applyFetchedField', () {
+    test('fills a field the user has not edited', () {
+      final r = applyFetchedField(
+        current: 'old',
+        baseline: 'old',
+        fetched: 'new',
+      );
+      expect(r.text, 'new');
+      expect(r.baseline, 'new');
+    });
+
+    test('keeps text the user typed', () {
+      final r = applyFetchedField(
+        current: 'mine',
+        baseline: 'old',
+        fetched: 'new',
+      );
+      expect(r.text, 'mine');
+      expect(r.baseline, 'old');
+    });
+
+    test('keeps the saved value when the fetch has none', () {
+      final r = applyFetchedField(current: 'old', baseline: 'old');
+      expect(r.text, 'old');
+      expect(r.baseline, 'old');
+    });
+  });
 }

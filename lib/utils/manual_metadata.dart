@@ -41,3 +41,18 @@ resolveMetadataFields({
     fetchedAt: cleared ? null : DateTime.now().toIso8601String(),
   );
 }
+
+/// Text for a cover/description field after a fetch returned [fetched]: the
+/// fetched value, unless the user edited the field since it was last filled
+/// with [baseline] or the fetch returned none. [baseline] is the new value
+/// to compare against when saving.
+({String text, String? baseline}) applyFetchedField({
+  required String current,
+  String? baseline,
+  String? fetched,
+}) {
+  if (_clean(current) != _clean(baseline) || _clean(fetched) == null) {
+    return (text: current, baseline: baseline);
+  }
+  return (text: fetched!, baseline: fetched);
+}

@@ -1547,11 +1547,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
           }
 
           // Store metadata fields that don't have form inputs
-          _fetchedDescription = metadata.description;
-          _fetchedCoverUrl = metadata.bestCoverUrl;
           _fetchedMetadataSource = metadata.source;
-          _descriptionController.text = metadata.description ?? '';
-          _coverUrlController.text = metadata.bestCoverUrl ?? '';
+          final cover = applyFetchedField(
+            current: _coverUrlController.text,
+            baseline: _fetchedCoverUrl,
+            fetched: metadata.bestCoverUrl,
+          );
+          _coverUrlController.text = cover.text;
+          _fetchedCoverUrl = cover.baseline;
+          final description = applyFetchedField(
+            current: _descriptionController.text,
+            baseline: _fetchedDescription,
+            fetched: metadata.description,
+          );
+          _descriptionController.text = description.text;
+          _fetchedDescription = description.baseline;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(

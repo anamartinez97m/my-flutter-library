@@ -365,6 +365,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _descriptionController = TextEditingController(
       text: widget.book.description ?? '',
     );
+    final manualMetadata = widget.book.metadataSource == manualMetadataSource;
+    _fetchedCoverUrl = manualMetadata ? null : widget.book.coverUrl;
+    _fetchedDescription = manualMetadata ? null : widget.book.description;
     _priceController = TextEditingController(
       text: widget.book.price != null ? widget.book.price.toString() : '',
     );
@@ -675,9 +678,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final metadataFields = resolveMetadataFields(
         coverText: _coverUrlController.text,
         descriptionText: _descriptionController.text,
-        fetchedCoverUrl: fetched ? _fetchedCoverUrl : widget.book.coverUrl,
-        fetchedDescription:
-            fetched ? _fetchedDescription : widget.book.description,
+        fetchedCoverUrl: _fetchedCoverUrl,
+        fetchedDescription: _fetchedDescription,
         fetchedSource: _fetchedMetadataSource ?? widget.book.metadataSource,
         fetchedAt:
             fetched
@@ -3136,11 +3138,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
           }
 
           // Store metadata fields that don't have form inputs
-          _fetchedDescription = metadata.description;
-          _fetchedCoverUrl = metadata.bestCoverUrl;
           _fetchedMetadataSource = metadata.source;
-          _descriptionController.text = metadata.description ?? '';
-          _coverUrlController.text = metadata.bestCoverUrl ?? '';
+          final cover = applyFetchedField(
+            current: _coverUrlController.text,
+            baseline: _fetchedCoverUrl,
+            fetched: metadata.bestCoverUrl,
+          );
+          _coverUrlController.text = cover.text;
+          _fetchedCoverUrl = cover.baseline;
+          final description = applyFetchedField(
+            current: _descriptionController.text,
+            baseline: _fetchedDescription,
+            fetched: metadata.description,
+          );
+          _descriptionController.text = description.text;
+          _fetchedDescription = description.baseline;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
