@@ -2284,18 +2284,26 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  /// One "Release Date" card: the exact release date when set, else the
-  /// publication year, month or day as far as it is known.
+  /// One "Release Date" card. TBReleased books prefer `release_date`;
+  /// others prefer the publication date, since Edit Book only lets you edit
+  /// `release_date` while the book is TBReleased.
   Widget? _buildReleaseDateCard() {
     final release = parseStoredDate(_currentBook.releaseDate);
-    final date =
-        release != null
-            ? PublicationDate(
+    final releaseDate =
+        release == null
+            ? null
+            : PublicationDate(
               release.year,
               month: release.month,
               day: release.day,
-            )
-            : PublicationDate.fromBook(_currentBook);
+            );
+    final publicationDate = PublicationDate.fromBook(_currentBook);
+    final isTbReleased =
+        _currentBook.statusValue?.toLowerCase() == 'tbreleased';
+    final date =
+        isTbReleased
+            ? releaseDate ?? publicationDate
+            : publicationDate ?? releaseDate;
     if (date == null) return null;
     return _DetailCard(
       icon: Icons.event,
