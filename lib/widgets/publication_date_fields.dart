@@ -83,8 +83,9 @@ class _PublicationDateFieldsState extends State<PublicationDateFields> {
   }
 
   Future<void> _pickDay() async {
-    final first = DateTime(1900);
-    final last = DateTime(2100, 12, 31);
+    final year = _year;
+    final first = DateTime(year != null && year < 1900 ? year : 1900);
+    final last = DateTime(year != null && year > 2100 ? year : 2100, 12, 31);
     final current =
         PublicationDate.fromParts(_year, widget.month, widget.day)?.fullDate;
     var initial =
@@ -289,12 +290,12 @@ class _MonthPickerDialogState extends State<_MonthPickerDialog> {
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: _year > 1900 ? () => setState(() => _year--) : null,
+            onPressed: _year > 1 ? () => setState(() => _year--) : null,
           ),
           Expanded(child: Text('$_year', textAlign: TextAlign.center)),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed: _year < 2100 ? () => setState(() => _year++) : null,
+            onPressed: _year < 9999 ? () => setState(() => _year++) : null,
           ),
         ],
       ),
