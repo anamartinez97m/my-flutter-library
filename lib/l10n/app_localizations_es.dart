@@ -4773,6 +4773,42 @@ class AppLocalizationsEs extends AppLocalizations {
       'Añade una fecha objetivo para ver tu meta diaria';
 
   @override
+  String get book_details_section_reading => 'Lectura';
+
+  @override
+  String get book_details_section_author_genre => 'Autor y género';
+
+  @override
+  String get book_details_section_series => 'Serie';
+
+  @override
+  String get book_details_section_edition => 'Edición';
+
+  @override
+  String get book_details_section_my_copy => 'Mi ejemplar';
+
+  @override
+  String get release_date_precision_year => 'Año';
+
+  @override
+  String get release_date_select_month => 'Seleccionar mes';
+
+  @override
+  String release_date_hint_year(String example) {
+    return 'Se muestra como \"$example\". Escribe el año.';
+  }
+
+  @override
+  String release_date_hint_month(String example) {
+    return 'Se muestra como \"$example\". Elige el mes y el año.';
+  }
+
+  @override
+  String release_date_hint_day(String example) {
+    return 'Se muestra como \"$example\". Elige el día exacto.';
+  }
+
+  @override
   String get cover_and_description => 'Portada y descripción';
 
   @override

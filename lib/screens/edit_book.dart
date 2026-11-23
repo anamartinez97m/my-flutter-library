@@ -187,6 +187,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
   }
 
+  /// Keeps `release_date` in step with the Release Date field: set when the
+  /// exact day is known, cleared otherwise.
+  void _syncReleaseDate() {
+    final full = _publicationDate()?.fullDate;
+    if (full == null) {
+      _releaseDate = null;
+    } else if (full != _releaseDate) {
+      _setReleaseDate(full);
+    }
+  }
+
   void _setNotificationDateTime(DateTime value) {
     _notificationDateTime = value;
     _notificationTime = TimeOfDay.fromDateTime(value);
@@ -416,6 +427,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
         debugPrint('Error parsing release date: $e');
       }
     }
+
+    // The Release Date field shows the same date as Book Details: the release
+    // date for TBReleased books, otherwise the publication date.
+    final release = _releaseDate;
+    if (release != null &&
+        (publicationDate == null ||
+            widget.book.statusValue?.toLowerCase() == 'tbreleased')) {
+      _publicationYearController.text = release.year.toString();
+      _publicationMonth = release.month;
+      _publicationDay = release.day;
+    }
+    _releaseDate = _publicationDate()?.fullDate;
 
     // Old date fields removed - now using book_read_dates table
   }
@@ -2015,11 +2038,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         (month, day) => setState(() {
                           _publicationMonth = month;
                           _publicationDay = day;
+                          _syncReleaseDate();
                         }),
                   ),
                   const SizedBox(height: 16),
 
-                  // Release date picker (only for TBReleased books)
+                  // Release notification (only for TBReleased books)
                   if (_statusList.isNotEmpty &&
                       _selectedStatusId != null &&
                       _statusList.any(
@@ -2031,44 +2055,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        InkWell(
-                          onTap: () async {
-                            final pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _releaseDate ?? DateTime.now(),
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime(2100),
-                            );
-                            if (pickedDate != null) {
-                              setState(() => _setReleaseDate(pickedDate));
-                            }
-                          },
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText:
-                                  AppLocalizations.of(context)!.release_date,
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.calendar_today),
-                            ),
-                            child: Text(
-                              _releaseDate != null
-                                  ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                                  : AppLocalizations.of(
-                                    context,
-                                  )!.select_release_date,
-                              style: TextStyle(
-                                color:
-                                    _releaseDate != null
-                                        ? null
-                                        : Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
                         // Notification checkbox
                         CheckboxListTile(
                           title: Text(
