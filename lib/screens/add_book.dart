@@ -1214,8 +1214,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               )
               .toList();
 
-      _fetchedCoverUrl = book.coverUrl;
-      _fetchedDescription = book.description;
+      // Manual values count as edited, so a fetch doesn't replace them.
+      final manualMetadata = book.metadataSource == manualMetadataSource;
+      _fetchedCoverUrl = manualMetadata ? null : book.coverUrl;
+      _fetchedDescription = manualMetadata ? null : book.description;
       _fetchedMetadataSource = book.metadataSource;
       _fetchedForIsbn = book.isbn;
       _coverUrlController.text = book.coverUrl ?? '';
