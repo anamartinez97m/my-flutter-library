@@ -134,15 +134,15 @@ class GoogleBooksService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final items = data['items'] as List<dynamic>?;
 
-        final matches = MetadataMatch.preferExactTitle(
-          (items ?? const [])
-              .whereType<Map<String, dynamic>>()
-              .where((item) => _matches(item, title, author))
-              .map(_parseGoogleBooksResponse)
-              .toList(),
-          title,
-          (m) => m.title,
-        );
+        final matches =
+            MetadataMatch.preferExactTitle(
+              (items ?? const [])
+                  .whereType<Map<String, dynamic>>()
+                  .where((item) => _matches(item, title, author))
+                  .toList(),
+              title,
+              _fullTitle,
+            ).map(_parseGoogleBooksResponse).toList();
         if (matches.isNotEmpty) {
           // Among the editions of the same book, prefer the most complete one.
           final metadata =
@@ -337,6 +337,14 @@ class GoogleBooksService {
               ?.whereType<String>()
               .toList(),
     );
+  }
+
+  String _fullTitle(Map<String, dynamic> item) {
+    final volumeInfo = item['volumeInfo'] as Map<String, dynamic>? ?? {};
+    return [
+      volumeInfo['title'],
+      volumeInfo['subtitle'],
+    ].whereType<String>().join(': ');
   }
 
   T? _firstWhereOrNull<T>(Iterable<T> items, bool Function(T) test) {
