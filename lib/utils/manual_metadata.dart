@@ -22,10 +22,11 @@ resolveMetadataFields({
 }) {
   final coverUrl = _clean(coverText);
   final description = _clean(descriptionText);
+  final cleared = coverUrl == null && description == null;
   final edited =
       coverUrl != _clean(fetchedCoverUrl) ||
       description != _clean(fetchedDescription);
-  if (!edited) {
+  if (!edited && !(cleared && fetchedSource == manualMetadataSource)) {
     return (
       coverUrl: coverUrl,
       description: description,
@@ -33,7 +34,6 @@ resolveMetadataFields({
       fetchedAt: fetchedAt,
     );
   }
-  final cleared = coverUrl == null && description == null;
   return (
     coverUrl: coverUrl,
     description: description,

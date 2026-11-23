@@ -178,4 +178,15 @@ void main() {
       expect(r.baseline, 'old');
     });
   });
+
+  test('clearing manual values with no fetched ones drops the manual mark', () {
+    final r = resolveMetadataFields(
+      coverText: '',
+      descriptionText: ' ',
+      fetchedSource: manualMetadataSource,
+      fetchedAt: '2026-01-01',
+    );
+    expect(r.source, isNull);
+    expect(r.fetchedAt, isNull);
+  });
 }
