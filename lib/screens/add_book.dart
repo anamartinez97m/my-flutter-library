@@ -171,6 +171,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  /// Keeps `release_date` in step with the Release Date field: set when the
+  /// exact day is known, cleared otherwise.
+  void _syncReleaseDate() {
+    final full = _publicationDate()?.fullDate;
+    if (full == null) {
+      _releaseDate = null;
+    } else if (full != _releaseDate) {
+      _setReleaseDate(full);
+    }
+  }
+
   void _setNotificationDateTime(DateTime value) {
     _notificationDateTime = value;
     _notificationTime = TimeOfDay.fromDateTime(value);
@@ -1176,6 +1187,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _publicationYearController.text = publicationDate?.year.toString() ?? '';
       _publicationMonth = publicationDate?.month;
       _publicationDay = publicationDate?.day;
+      _syncReleaseDate();
 
       _selectedLoaned = book.loaned;
 
@@ -1969,6 +1981,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             (month, day) => setState(() {
               _publicationMonth = month;
               _publicationDay = day;
+              _syncReleaseDate();
             }),
       ),
       if (_statusList.isNotEmpty &&
@@ -1978,29 +1991,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 s['status_id'] == _selectedStatusId &&
                 (s['value'] as String).toLowerCase() == 'tbreleased',
           )) ...[
-        const SizedBox(height: 10),
-        InkWell(
-          onTap: () async {
-            final d = await showDatePicker(
-              context: context,
-              initialDate: _releaseDate ?? DateTime.now(),
-              firstDate: DateTime(1900),
-              lastDate: DateTime(2100),
-            );
-            if (d != null) {
-              setState(() => _setReleaseDate(d));
-            }
-          },
-          child: InputDecorator(
-            decoration: _v2Deco(l10n.release_date, Icons.calendar_today),
-            child: Text(
-              _releaseDate != null
-                  ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                  : l10n.select_release_date,
-              style: TextStyle(color: _releaseDate != null ? null : _kLabel),
-            ),
-          ),
-        ),
         const SizedBox(height: 10),
         CheckboxListTile(
           title: Text(
