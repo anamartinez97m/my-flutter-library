@@ -2284,22 +2284,24 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  /// Publication year, plus the month or exact date when known.
-  List<Widget> _buildPublicationInfo(PublicationDate date) {
-    final l10n = AppLocalizations.of(context)!;
-    return [
-      _DetailCard(
-        icon: Icons.calendar_today,
-        label: l10n.original_publication_year_label,
-        value: date.year.toString(),
-      ),
-      if (date.hasMonth)
-        _DetailCard(
-          icon: Icons.event,
-          label: l10n.original_publication_date_label,
-          value: date.format(Localizations.localeOf(context).toString()),
-        ),
-    ];
+  /// One "Release Date" card: the exact release date when set, else the
+  /// publication year, month or day as far as it is known.
+  Widget? _buildReleaseDateCard() {
+    final release = parseStoredDate(_currentBook.releaseDate);
+    final date =
+        release != null
+            ? PublicationDate(
+              release.year,
+              month: release.month,
+              day: release.day,
+            )
+            : PublicationDate.fromBook(_currentBook);
+    if (date == null) return null;
+    return _DetailCard(
+      icon: Icons.event,
+      label: AppLocalizations.of(context)!.release_date,
+      value: date.format(Localizations.localeOf(context).toString()),
+    );
   }
 
   Future<void> _deleteBook(BuildContext context) async {
@@ -3353,16 +3355,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
-                          // Original publication year/date
-                          final publicationDate = PublicationDate.fromBook(
-                            _currentBook,
-                          );
-                          if (publicationDate != null) {
-                            for (final w in _buildPublicationInfo(
-                              publicationDate,
-                            )) {
-                              addCell(w);
-                            }
+                          // Release date
+                          final releaseDateCard = _buildReleaseDateCard();
+                          if (releaseDateCard != null) {
+                            addCell(releaseDateCard);
                           }
 
                           // Pages
