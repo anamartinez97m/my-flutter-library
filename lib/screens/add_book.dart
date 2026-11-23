@@ -29,6 +29,7 @@ import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 import 'package:myrandomlibrary/utils/manual_metadata.dart';
+import 'package:myrandomlibrary/utils/metadata_match.dart';
 import '../config/app_theme.dart';
 
 class AddBookScreen extends StatefulWidget {
@@ -139,6 +140,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _fetchedDescription;
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
+  String? _fetchedForIsbn;
 
   late String _initialFormSnapshot;
 
@@ -1075,6 +1077,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _fetchedDescription = null;
         _fetchedCoverUrl = null;
         _fetchedMetadataSource = null;
+        _fetchedForIsbn = null;
         _coverUrlController.clear();
         _descriptionController.clear();
         _pagesFetchedFromApi = false;
@@ -1214,6 +1217,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _fetchedCoverUrl = book.coverUrl;
       _fetchedDescription = book.description;
       _fetchedMetadataSource = book.metadataSource;
+      _fetchedForIsbn = book.isbn;
       _coverUrlController.text = book.coverUrl ?? '';
       _descriptionController.text = book.description ?? '';
 
@@ -1548,10 +1552,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
           // Store metadata fields that don't have form inputs
           _fetchedMetadataSource = metadata.source;
+          // A field the lookup didn't return keeps its value only if it came
+          // from this same ISBN, not from a previous (possibly wrong) book.
+          final sameIsbn =
+              MetadataMatch.cleanIsbn(isbn) ==
+              MetadataMatch.cleanIsbn(_fetchedForIsbn);
+          _fetchedForIsbn = isbn;
           final cover = applyFetchedField(
             current: _coverUrlController.text,
             baseline: _fetchedCoverUrl,
             fetched: metadata.bestCoverUrl,
+            keepMissing: sameIsbn,
           );
           _coverUrlController.text = cover.text;
           _fetchedCoverUrl = cover.baseline;
@@ -1559,6 +1570,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             current: _descriptionController.text,
             baseline: _fetchedDescription,
             fetched: metadata.description,
+            keepMissing: sameIsbn,
           );
           _descriptionController.text = description.text;
           _fetchedDescription = description.baseline;

@@ -44,15 +44,22 @@ resolveMetadataFields({
 
 /// Text for a cover/description field after a fetch returned [fetched]: the
 /// fetched value, unless the user edited the field since it was last filled
-/// with [baseline] or the fetch returned none. [baseline] is the new value
-/// to compare against when saving.
+/// with [baseline]. When the fetch returned none, the field is kept if
+/// [keepMissing] (same lookup as before) and emptied otherwise. [baseline]
+/// is the new value to compare against when saving.
 ({String text, String? baseline}) applyFetchedField({
   required String current,
   String? baseline,
   String? fetched,
+  bool keepMissing = true,
 }) {
-  if (_clean(current) != _clean(baseline) || _clean(fetched) == null) {
+  if (_clean(current) != _clean(baseline)) {
     return (text: current, baseline: baseline);
+  }
+  if (_clean(fetched) == null) {
+    return keepMissing
+        ? (text: current, baseline: baseline)
+        : (text: '', baseline: null);
   }
   return (text: fetched!, baseline: fetched);
 }

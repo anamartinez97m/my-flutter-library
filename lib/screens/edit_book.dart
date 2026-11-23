@@ -28,6 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 import 'package:myrandomlibrary/utils/manual_metadata.dart';
+import 'package:myrandomlibrary/utils/metadata_match.dart';
 import '../config/app_theme.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -152,6 +153,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   String? _fetchedDescription;
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
+  String? _fetchedForIsbn;
 
   /// Capitalize only the first letter, rest lowercase
   String _capitalizeFirstWord(String text) {
@@ -368,6 +370,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     final manualMetadata = widget.book.metadataSource == manualMetadataSource;
     _fetchedCoverUrl = manualMetadata ? null : widget.book.coverUrl;
     _fetchedDescription = manualMetadata ? null : widget.book.description;
+    _fetchedForIsbn = widget.book.isbn;
     _priceController = TextEditingController(
       text: widget.book.price != null ? widget.book.price.toString() : '',
     );
@@ -3139,10 +3142,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
           // Store metadata fields that don't have form inputs
           _fetchedMetadataSource = metadata.source;
+          // A field the lookup didn't return keeps its value only if it came
+          // from this same ISBN, not from a previous (possibly wrong) book.
+          final sameIsbn =
+              MetadataMatch.cleanIsbn(isbn) ==
+              MetadataMatch.cleanIsbn(_fetchedForIsbn);
+          _fetchedForIsbn = isbn;
           final cover = applyFetchedField(
             current: _coverUrlController.text,
             baseline: _fetchedCoverUrl,
             fetched: metadata.bestCoverUrl,
+            keepMissing: sameIsbn,
           );
           _coverUrlController.text = cover.text;
           _fetchedCoverUrl = cover.baseline;
@@ -3150,6 +3160,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             current: _descriptionController.text,
             baseline: _fetchedDescription,
             fetched: metadata.description,
+            keepMissing: sameIsbn,
           );
           _descriptionController.text = description.text;
           _fetchedDescription = description.baseline;

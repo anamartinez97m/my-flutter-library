@@ -200,4 +200,14 @@ void main() {
       ['Dune Messiah'],
     );
   });
+
+  test('empties a field a different lookup did not return', () {
+    final r = applyFetchedField(
+      current: 'old',
+      baseline: 'old',
+      keepMissing: false,
+    );
+    expect(r.text, '');
+    expect(r.baseline, isNull);
+  });
 }
