@@ -2055,5 +2055,11 @@
   "release_date_select_month": "Seleccionar mes",
   "release_date_hint_year": "Se muestra como \"{example}\". Escribe el año.",
   "release_date_hint_month": "Se muestra como \"{example}\". Elige el mes y el año.",
-  "release_date_hint_day": "Se muestra como \"{example}\". Elige el día exacto."
+  "release_date_hint_day": "Se muestra como \"{example}\". Elige el día exacto.",
+  "cover_and_description": "Portada y descripción",
+  "cover_image_url": "URL de la imagen de portada",
+  "cover_image_url_hint": "Pega el enlace de la imagen de portada",
+  "book_description": "Descripción",
+  "manual_metadata_hint": "Si los cambias, al actualizar el libro no se sustituirán. Vacía ambos para volver a buscarlos.",
+  "metadata_set_manually": "La portada y la descripción se pusieron a mano. Vacíalas en Editar libro para volver a buscarlas."
 }

@@ -4753,4 +4753,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String release_date_hint_day(String example) {
     return 'Shown as \"$example\". Pick the exact day.';
   }
+
+  @override
+  String get cover_and_description => 'Cover & Description';
+
+  @override
+  String get cover_image_url => 'Cover image URL';
+
+  @override
+  String get cover_image_url_hint => 'Paste a link to the cover image';
+
+  @override
+  String get book_description => 'Description';
+
+  @override
+  String get manual_metadata_hint =>
+      'If you change these, refreshing the book won\'t replace them. Clear both to fetch them again.';
+
+  @override
+  String get metadata_set_manually =>
+      'The cover and description were set manually. Clear them in Edit Book to fetch them again.';
 }

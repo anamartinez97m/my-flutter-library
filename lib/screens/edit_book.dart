@@ -27,6 +27,8 @@ import 'package:myrandomlibrary/discovery/text/text_normalizer.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/utils/manual_metadata.dart';
+import 'package:myrandomlibrary/utils/metadata_match.dart';
 import '../config/app_theme.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -68,6 +70,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _genreController;
   late TextEditingController _myReviewController;
   late TextEditingController _notesController;
+  late TextEditingController _coverUrlController;
+  late TextEditingController _descriptionController;
   late TextEditingController _priceController;
   late TextEditingController _acquiredYearController;
   late double _myRating;
@@ -149,6 +153,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   String? _fetchedDescription;
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
+  String? _fetchedForIsbn;
 
   /// Capitalize only the first letter, rest lowercase
   String _capitalizeFirstWord(String text) {
@@ -367,6 +372,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _genreController = TextEditingController(text: widget.book.genre);
     _myReviewController = TextEditingController(text: widget.book.myReview);
     _notesController = TextEditingController(text: widget.book.notes ?? '');
+    _coverUrlController = TextEditingController(
+      text: widget.book.coverUrl ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: widget.book.description ?? '',
+    );
+    final manualMetadata = widget.book.metadataSource == manualMetadataSource;
+    _fetchedCoverUrl = manualMetadata ? null : widget.book.coverUrl;
+    _fetchedDescription = manualMetadata ? null : widget.book.description;
+    _fetchedForIsbn = widget.book.isbn;
     _priceController = TextEditingController(
       text: widget.book.price != null ? widget.book.price.toString() : '',
     );
@@ -685,6 +700,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
         }
       }
 
+      final fetched = _fetchedMetadataSource != null;
+      final metadataFields = resolveMetadataFields(
+        coverText: _coverUrlController.text,
+        descriptionText: _descriptionController.text,
+        fetchedCoverUrl: _fetchedCoverUrl,
+        fetchedDescription: _fetchedDescription,
+        fetchedSource: _fetchedMetadataSource ?? widget.book.metadataSource,
+        fetchedAt:
+            fetched
+                ? DateTime.now().toIso8601String()
+                : widget.book.metadataFetchedAt,
+      );
+
       final updatedBook = Book(
         bookId: widget.book.bookId,
         name:
@@ -764,13 +792,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ? null
                 : double.tryParse(_priceController.text.trim()),
         ratingOverride: _ratingOverride,
-        description: _fetchedDescription ?? widget.book.description,
-        coverUrl: _fetchedCoverUrl ?? widget.book.coverUrl,
-        metadataSource: _fetchedMetadataSource ?? widget.book.metadataSource,
-        metadataFetchedAt:
-            _fetchedMetadataSource != null
-                ? DateTime.now().toIso8601String()
-                : widget.book.metadataFetchedAt,
+        description: metadataFields.description,
+        coverUrl: metadataFields.coverUrl,
+        metadataSource: metadataFields.source,
+        metadataFetchedAt: metadataFields.fetchedAt,
         acquiredDate: _getAcquiredDate(),
         orderWithinUniverse:
             _sagaUniverseController.text.trim().isEmpty
@@ -1303,6 +1328,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _genreController.dispose();
     _myReviewController.dispose();
     _notesController.dispose();
+    _coverUrlController.dispose();
+    _descriptionController.dispose();
     _priceController.dispose();
     _acquiredYearController.dispose();
     super.dispose();
@@ -2933,6 +2960,43 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
+                    _v2SectionHeading(l10n.cover_and_description),
+                    TextFormField(
+                      controller: _coverUrlController,
+                      decoration: InputDecoration(
+                        labelText: l10n.cover_image_url,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.image_outlined),
+                        hintText: l10n.cover_image_url_hint,
+                      ),
+                      keyboardType: TextInputType.url,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: l10n.book_description,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.subject),
+                      ),
+                      maxLines: 6,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 12),
+                      child: Text(
+                        l10n.manual_metadata_hint,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: V2Colors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
                     _v2SectionHeading(l10n.notes),
                   ] else
                     const SizedBox(height: 16),
@@ -3063,9 +3127,29 @@ class _EditBookScreenState extends State<EditBookScreen> {
           }
 
           // Store metadata fields that don't have form inputs
-          _fetchedDescription = metadata.description;
-          _fetchedCoverUrl = metadata.bestCoverUrl;
           _fetchedMetadataSource = metadata.source;
+          // A field the lookup didn't return keeps its value only if it came
+          // from this same ISBN, not from a previous (possibly wrong) book.
+          final sameIsbn =
+              MetadataMatch.isbn13(isbn) ==
+              MetadataMatch.isbn13(_fetchedForIsbn);
+          _fetchedForIsbn = isbn;
+          final cover = applyFetchedField(
+            current: _coverUrlController.text,
+            baseline: _fetchedCoverUrl,
+            fetched: metadata.bestCoverUrl,
+            keepMissing: sameIsbn,
+          );
+          _coverUrlController.text = cover.text;
+          _fetchedCoverUrl = cover.baseline;
+          final description = applyFetchedField(
+            current: _descriptionController.text,
+            baseline: _fetchedDescription,
+            fetched: metadata.description,
+            keepMissing: sameIsbn,
+          );
+          _descriptionController.text = description.text;
+          _fetchedDescription = description.baseline;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(

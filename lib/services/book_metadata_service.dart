@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../model/book_metadata.dart';
 import 'google_books_service.dart';
 import 'open_library_service.dart';
+import '../utils/metadata_match.dart';
 
 /// Hybrid book metadata service that combines Google Books and Open Library APIs
 ///
@@ -33,9 +34,12 @@ class BookMetadataService {
       '[MetadataService] Starting fetch - ISBN: $isbn, Title: $title, Author: $author, Language: $language',
     );
 
+    // Kindle ASINs and other non-ISBN codes would be looked up as a random
+    // ISBN, so only real ISBNs are used and the rest falls back to the title.
+    isbn = MetadataMatch.cleanIsbn(isbn);
+
     // Validate input
-    if ((isbn == null || isbn.trim().isEmpty) &&
-        (title == null || title.trim().isEmpty)) {
+    if (isbn == null && (title == null || title.trim().isEmpty)) {
       debugPrint('[MetadataService] Error: ISBN or title required');
       return null;
     }
@@ -45,11 +49,13 @@ class BookMetadataService {
 
     // STEP 1: Try Google Books API (Primary Source)
     try {
-      if (isbn != null && isbn.trim().isNotEmpty) {
+      if (isbn != null) {
         // Prefer ISBN search for accuracy
         googleMetadata = await _googleBooksService.fetchByIsbn(
           isbn,
           language: language,
+          title: title,
+          author: author,
         );
       }
 
@@ -72,9 +78,12 @@ class BookMetadataService {
       debugPrint('[MetadataService] Fetching from Open Library (missing data)');
 
       try {
-        if (isbn != null && isbn.trim().isNotEmpty) {
+        if (isbn != null) {
           openLibraryMetadata = await _openLibraryService.fetchByIsbn(isbn);
-        } else if (title != null && title.trim().isNotEmpty) {
+        }
+        if (openLibraryMetadata == null &&
+            title != null &&
+            title.trim().isNotEmpty) {
           openLibraryMetadata = await _openLibraryService.fetchByTitle(
             title,
             author: author,
@@ -148,6 +157,15 @@ class BookMetadataService {
       return googleMetadata.copyWith(source: 'google_books');
     }
 
+    // Never mix a cover or description from a different book
+    if (!_sameBook(googleMetadata, openLibraryMetadata)) {
+      debugPrint(
+        '[MetadataService] Open Library returned a different book '
+        '("${openLibraryMetadata.title}" vs "${googleMetadata.title}"), ignoring it',
+      );
+      return googleMetadata.copyWith(source: 'google_books');
+    }
+
     // Both sources have data - merge them
     debugPrint('[MetadataService] Merging data from both sources');
 
@@ -186,6 +204,15 @@ class BookMetadataService {
       source: 'merged',
       fetchedAt: DateTime.now(),
     );
+  }
+
+  bool _sameBook(BookMetadata a, BookMetadata b) {
+    final sharesIsbn =
+        (a.isbn13 != null && a.isbn13 == b.isbn13) ||
+        (a.isbn10 != null && a.isbn10 == b.isbn10);
+    if (sharesIsbn || a.title == null || b.title == null) return true;
+    return MetadataMatch.titleMatches(a.title, b.title) ||
+        MetadataMatch.titleMatches(b.title, a.title);
   }
 
   /// Select the best description from available options
