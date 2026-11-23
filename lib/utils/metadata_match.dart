@@ -18,6 +18,19 @@ class MetadataMatch {
     return null;
   }
 
+  /// [value] as an ISBN-13 (an ISBN-10 is converted), or null when it isn't
+  /// an ISBN, so both forms of the same edition compare equal.
+  static String? isbn13(String? value) {
+    final clean = cleanIsbn(value);
+    if (clean == null || clean.length == 13) return clean;
+    final core = '978${clean.substring(0, 9)}';
+    var sum = 0;
+    for (var i = 0; i < 12; i++) {
+      sum += int.parse(core[i]) * (i.isEven ? 1 : 3);
+    }
+    return '$core${(10 - sum % 10) % 10}';
+  }
+
   /// Whether [candidateTitle] (plus its [candidateSubtitle]) is the book
   /// titled [expected]. Case, accents and punctuation are ignored; a subtitle,
   /// series note in brackets or text after `:` on either side is tolerated.

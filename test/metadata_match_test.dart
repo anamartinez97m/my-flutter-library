@@ -210,4 +210,10 @@ void main() {
     expect(r.text, '');
     expect(r.baseline, isNull);
   });
+
+  test('MetadataMatch.isbn13 converts ISBN-10s', () {
+    expect(MetadataMatch.isbn13('0-306-40615-2'), '9780306406157');
+    expect(MetadataMatch.isbn13('978-0-306-40615-7'), '9780306406157');
+    expect(MetadataMatch.isbn13('B07XYZ1234'), isNull);
+  });
 }

@@ -3145,8 +3145,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           // A field the lookup didn't return keeps its value only if it came
           // from this same ISBN, not from a previous (possibly wrong) book.
           final sameIsbn =
-              MetadataMatch.cleanIsbn(isbn) ==
-              MetadataMatch.cleanIsbn(_fetchedForIsbn);
+              MetadataMatch.isbn13(isbn) ==
+              MetadataMatch.isbn13(_fetchedForIsbn);
           _fetchedForIsbn = isbn;
           final cover = applyFetchedField(
             current: _coverUrlController.text,
