@@ -189,4 +189,15 @@ void main() {
     expect(r.source, isNull);
     expect(r.fetchedAt, isNull);
   });
+
+  test('prefers a whole-title match over a main-title one', () {
+    expect(
+      MetadataMatch.preferExactTitle(
+        ['Dune', 'Dune Messiah'],
+        'Dune: Messiah',
+        (t) => t,
+      ),
+      ['Dune Messiah'],
+    );
+  });
 }

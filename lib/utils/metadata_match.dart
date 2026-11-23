@@ -57,13 +57,19 @@ class MetadataMatch {
         _tokens(_mainTitle(candidateTitle)),
       );
 
-  /// The [matches] whose title is exactly [expected], or all of them when
-  /// none is ("Dune" is preferred over "Dune Messiah").
+  /// The [matches] whose whole title is [expected], else those whose main
+  /// title is, else all of them ("Dune" is preferred over "Dune Messiah",
+  /// and "Dune Messiah" over "Dune" when looking for "Dune: Messiah").
   static List<T> preferExactTitle<T>(
     List<T> matches,
     String? expected,
     String? Function(T match) titleOf,
   ) {
+    final whole =
+        matches
+            .where((m) => _sameSet(_tokens(expected), _tokens(titleOf(m))))
+            .toList();
+    if (whole.isNotEmpty) return whole;
     final exact =
         matches.where((m) => titleIsExact(expected, titleOf(m))).toList();
     return exact.isEmpty ? matches : exact;
