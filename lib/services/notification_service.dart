@@ -117,7 +117,8 @@ class NotificationService {
     // instead of DateTime.now().timeZoneName which returns abbreviations
     // like 'CEST'/'CET' that the timezone package doesn't recognize
     try {
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      final String timeZoneName =
+          (await FlutterTimezone.getLocalTimezone()).identifier;
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       debugPrint('✅ Timezone set to: $timeZoneName');
     } catch (e) {
@@ -144,7 +145,7 @@ class NotificationService {
     );
 
     await _notifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
       onDidReceiveBackgroundNotificationResponse:
           _onBackgroundNotificationAction,
@@ -342,7 +343,7 @@ class NotificationService {
 
     // zonedSchedule throws for past dates (e.g. a book already released).
     if (!tzScheduledDate.isAfter(tz.TZDateTime.now(tz.local))) {
-      await _notifications.cancel(bookId);
+      await _notifications.cancel(id: bookId);
       return;
     }
 
@@ -418,28 +419,25 @@ class NotificationService {
       // Try with exact timing if permission granted
       if (hasExactAlarmPermission) {
         await _notifications.zonedSchedule(
-          bookId, // Use bookId as notification ID
-          'Book Release Reminder',
-          notificationBody,
-          tzScheduledDate,
-          notificationDetails,
+          id: bookId,
+          title: // Use bookId as notification ID
+              'Book Release Reminder',
+          body: notificationBody,
+          scheduledDate: tzScheduledDate,
+          notificationDetails: notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
           payload: 'book_release_$bookId',
         );
         debugPrint('✅ Notification scheduled with exact timing');
       } else {
         // Use inexact timing if permission not granted
         await _notifications.zonedSchedule(
-          bookId,
-          'Book Release Reminder',
-          notificationBody,
-          tzScheduledDate,
-          notificationDetails,
+          id: bookId,
+          title: 'Book Release Reminder',
+          body: notificationBody,
+          scheduledDate: tzScheduledDate,
+          notificationDetails: notificationDetails,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
           payload: 'book_release_$bookId',
         );
         debugPrint(
@@ -465,14 +463,12 @@ class NotificationService {
       // If exact alarms still fail, fall back to inexact timing
       debugPrint('❌ Error scheduling notification: $e');
       await _notifications.zonedSchedule(
-        bookId,
-        'Book Release Reminder',
-        notificationBody,
-        tzScheduledDate,
-        notificationDetails,
+        id: bookId,
+        title: 'Book Release Reminder',
+        body: notificationBody,
+        scheduledDate: tzScheduledDate,
+        notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         payload: 'book_release_$bookId',
       );
     }
@@ -480,7 +476,7 @@ class NotificationService {
 
   Future<void> cancelNotification(int bookId) async {
     if (!_initialized) await initialize();
-    await _notifications.cancel(bookId);
+    await _notifications.cancel(id: bookId);
   }
 
   /// Re-creates upcoming release notifications from the database, so books
@@ -734,18 +730,17 @@ class NotificationService {
 
     try {
       await _notifications.zonedSchedule(
-        notificationId,
-        _readingReminderTitleBuilder?.call(bookTitle) ??
+        id: notificationId,
+        title:
+            _readingReminderTitleBuilder?.call(bookTitle) ??
             'Have you read today?: $bookTitle',
-        'Tap to open book details',
-        scheduledDate,
-        notificationDetails,
+        body: 'Tap to open book details',
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
         androidScheduleMode:
             exact
                 ? AndroidScheduleMode.exactAllowWhileIdle
                 : AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         payload: 'reading_reminder_$bookId',
       );
     } catch (e) {
@@ -761,7 +756,7 @@ class NotificationService {
     final prefs = await SharedPreferences.getInstance();
     for (final idStr in prefs.getStringList(prefReadingReminderIds) ?? []) {
       final id = int.tryParse(idStr);
-      if (id != null) await _notifications.cancel(id);
+      if (id != null) await _notifications.cancel(id: id);
     }
     await prefs.remove(prefReadingReminderIds);
 
@@ -769,7 +764,7 @@ class NotificationService {
     for (final idStr in prefs.getStringList(prefReadingReminderBookIds) ?? []) {
       final bookId = int.tryParse(idStr);
       if (bookId != null) {
-        await _notifications.cancel(_readingReminderBaseId + bookId);
+        await _notifications.cancel(id: _readingReminderBaseId + bookId);
       }
     }
     await prefs.remove(prefReadingReminderBookIds);
@@ -780,7 +775,7 @@ class NotificationService {
     for (final notification in pendingNotifications) {
       if (notification.payload != null &&
           notification.payload!.startsWith('reading_reminder_')) {
-        await _notifications.cancel(notification.id);
+        await _notifications.cancel(id: notification.id);
       }
     }
     debugPrint('📖 Canceled all reading reminder notifications');
@@ -802,7 +797,7 @@ class NotificationService {
     if (!_initialized) await initialize();
 
     final prefs = await SharedPreferences.getInstance();
-    await _notifications.cancel(_championshipReminderId);
+    await _notifications.cancel(id: _championshipReminderId);
     if (!(prefs.getBool(prefChampionshipReminderEnabled) ?? false)) return;
 
     final hour = prefs.getInt(prefChampionshipReminderHour) ?? 21;
@@ -838,17 +833,18 @@ class NotificationService {
     final hasExactAlarmPermission = await requestExactAlarmPermission();
 
     await _notifications.zonedSchedule(
-      _championshipReminderId,
-      'Book championship reminder',
-      'Review this month’s book championship',
-      scheduledDate,
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
+      id: _championshipReminderId,
+      title: 'Book championship reminder',
+      body: 'Review this month’s book championship',
+      scheduledDate: scheduledDate,
+      notificationDetails: const NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      ),
       androidScheduleMode:
           hasExactAlarmPermission
               ? AndroidScheduleMode.exactAllowWhileIdle
               : AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
       payload: 'championship_reminder',
     );
@@ -883,10 +879,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      id,
-      title,
-      body,
-      notificationDetails,
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
       payload: payload,
     );
   }

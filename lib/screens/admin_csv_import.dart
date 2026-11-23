@@ -333,17 +333,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   Future<void> _selectAndParseCsv() async {
     try {
       // Pick CSV file - use FileType.any to allow selection from cloud storage
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFile(
         type: FileType.any,
         dialogTitle: 'Select CSV file',
-        allowMultiple: false,
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (picked == null) {
         return;
       }
 
-      final file = result.files.single;
+      final file = picked;
       final fileName = file.name;
 
       if (!fileName.toLowerCase().endsWith('.csv')) {
@@ -359,17 +358,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
       if (file.path == null || file.path!.isEmpty) {
         // Path not available (e.g., web or cloud storage), use bytes
-        if (file.bytes != null) {
-          // Create a temporary file from bytes
-          final tempDir = await Directory.systemTemp.createTemp('csv_import');
-          final tempFile = File('${tempDir.path}/$fileName');
-          await tempFile.writeAsBytes(file.bytes!);
-          filePath = tempFile.path;
-        } else {
-          throw Exception(
-            'Could not access file. Please try downloading it first.',
-          );
-        }
+        final tempDir = await Directory.systemTemp.createTemp('csv_import');
+        final tempFile = File('${tempDir.path}/$fileName');
+        await tempFile.writeAsBytes(await file.readAsBytes());
+        filePath = tempFile.path;
       } else {
         filePath = file.path!;
       }
