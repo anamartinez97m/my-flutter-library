@@ -1623,13 +1623,13 @@ class DatabaseHelper {
   }
 
   /// Expired TBReleased books got the full `release_date` timestamp
-  /// (`YYYY-MM-DDT00:00:00.000`, or space-separated from CSV imports) copied
+  /// (`YYYY-MM-DDT00:00:00.000`, or another separator from CSV imports) copied
   /// into `acquired_date`; keep only the `YYYY-MM-DD` part.
   static Future<void> trimAcquiredDateTimes(DatabaseExecutor db) async {
     await db.execute('''
       UPDATE book SET acquired_date = substr(acquired_date, 1, 10)
       WHERE length(acquired_date) > 10
-        AND acquired_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9][T ]*'
+        AND acquired_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9][^0-9]*'
     ''');
   }
 
