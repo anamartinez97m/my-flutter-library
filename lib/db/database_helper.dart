@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 48,
+      version: 49,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -1617,6 +1617,19 @@ class DatabaseHelper {
     if (oldVersion < 48) {
       await migratePublicationDates(db);
     }
+    if (oldVersion < 49) {
+      await trimAcquiredDateTimes(db);
+    }
+  }
+
+  /// Expired TBReleased books got the full ISO `release_date`
+  /// (`YYYY-MM-DDT00:00:00.000`) copied into `acquired_date`; keep only the
+  /// `YYYY-MM-DD` part.
+  static Future<void> trimAcquiredDateTimes(DatabaseExecutor db) async {
+    await db.execute('''
+      UPDATE book SET acquired_date = substr(acquired_date, 1, 10)
+      WHERE acquired_date LIKE '____-__-__T%'
+    ''');
   }
 
   /// Adds `original_publication_date` and moves the `YYYYMMDD` values that

@@ -1826,7 +1826,9 @@ class BookRepository {
         '''
         UPDATE book
         SET status_id = ?,
-            acquired_date = COALESCE(NULLIF(release_date, ''), original_publication_date)
+            acquired_date = substr(
+              COALESCE(NULLIF(release_date, ''), original_publication_date),
+              1, 10)
         WHERE status_id = ?
           AND substr(COALESCE(
                 NULLIF(release_date, ''),
