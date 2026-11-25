@@ -637,10 +637,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
     final l10n = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context);
     final colorScheme = Theme.of(context).colorScheme;
+    final tbrToggled = _tbr != (widget.book.tbr ?? false);
+    final checkedTbr = _tbr;
 
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
+
+      // TBR may have moved to a linked copy since this screen opened: keep the
+      // stored value unless the checkbox was changed here.
+      final tbr =
+          tbrToggled
+              ? checkedTbr
+              : (await db.query(
+                    'book',
+                    columns: ['tbr'],
+                    where: 'book_id = ?',
+                    whereArgs: [widget.book.bookId],
+                  )).firstOrNull?['tbr'] ==
+                  1;
 
       // Get the actual values from IDs
       String? statusValue =
@@ -770,7 +785,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundlePublicationYears: null, // No longer used in new system
         bundleTitles: null, // No longer used in new system
         bundleAuthors: null, // No longer used in new system
-        tbr: _tbr,
+        tbr: tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
         notificationEnabled: _notificationEnabled,
@@ -840,7 +855,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundlePublicationYears: updatedBook.bundlePublicationYears,
         bundleTitles: updatedBook.bundleTitles,
         bundleAuthors: updatedBook.bundleAuthors,
-        tbr: _tbr,
+        tbr: tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
         notificationEnabled: _notificationEnabled,
@@ -867,7 +882,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Use repository.addBook with the book ID to update in place
       // The repository properly converts field names and handles the update
       await repository.addBook(bookToUpdate);
-      if (_tbr) {
+      if (tbrToggled && tbr) {
         await repository.clearTbrForLinkedCopies(widget.book.bookId!);
       }
 

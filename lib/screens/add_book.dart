@@ -881,7 +881,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
       );
 
       final bookId = await repository.addBook(book);
-      if (_tbr) await repository.clearTbrForLinkedCopies(bookId);
+      if (book.tbr == true) {
+        await repository.clearTbrForLinkedCopies(bookId);
+      }
 
       // Save rating fields
       final ratingRepository = BookRatingFieldRepository(db);
