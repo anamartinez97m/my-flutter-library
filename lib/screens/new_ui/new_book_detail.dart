@@ -2743,12 +2743,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                                     // Toggle TBR status
                                     final newTbr = !(_currentBook.tbr == true);
-                                    await db.update(
-                                      'book',
-                                      {'tbr': newTbr ? 1 : 0},
-                                      where: 'book_id = ?',
-                                      whereArgs: [_currentBook.bookId],
-                                    );
+                                    await BookRepository(
+                                      db,
+                                    ).setTbr(_currentBook.bookId!, newTbr);
 
                                     // Reload provider
                                     if (!context.mounted) return;
