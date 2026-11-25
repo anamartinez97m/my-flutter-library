@@ -286,6 +286,36 @@ class BookRepository {
     return result.map((row) => Book.fromMap(row)).toList();
   }
 
+  /// Adds [bookId] to or removes it from TBR. A book and its repeated copies
+  /// share one TBR slot, so adding one removes the others.
+  Future<void> setTbr(int bookId, bool tbr) async {
+    await db.update(
+      'book',
+      {'tbr': tbr ? 1 : 0},
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+    if (tbr) await clearTbrForLinkedCopies(bookId);
+  }
+
+  /// Removes from TBR the original of [bookId] and every repeated copy of
+  /// that original (or of [bookId] itself), keeping only [bookId].
+  Future<void> clearTbrForLinkedCopies(int bookId) async {
+    await db.rawUpdate(
+      '''
+      UPDATE book SET tbr = 0
+      WHERE tbr = 1
+        AND book_id != ?
+        AND (
+          original_book_id = ?
+          OR book_id = (SELECT original_book_id FROM book WHERE book_id = ?)
+          OR original_book_id = (SELECT original_book_id FROM book WHERE book_id = ?)
+        )
+      ''',
+      [bookId, bookId, bookId, bookId],
+    );
+  }
+
   /// Get books with Started status, ordered by most recently started reading first
   Future<List<Book>> getStartedBooks() async {
     final result = await db.rawQuery('''

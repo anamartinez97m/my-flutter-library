@@ -881,6 +881,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       );
 
       final bookId = await repository.addBook(book);
+      if (_tbr) await repository.clearTbrForLinkedCopies(bookId);
 
       // Save rating fields
       final ratingRepository = BookRatingFieldRepository(db);
@@ -1131,7 +1132,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   /// Fills form fields with data from the selected original book.
-  /// Excluded fields: isbn, asin, format, pages, language, price, acquired date, place, reading sessions.
+  /// Excluded fields: isbn, asin, format, pages, language, price, acquired date, place, reading sessions, TBR.
   Future<void> _fillFromOriginalBook(Book book) async {
     List<BookRatingField> originalRatingFields = [];
     try {
@@ -1235,7 +1236,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _coverUrlController.text = book.coverUrl ?? '';
       _descriptionController.text = book.description ?? '';
 
-      _tbr = book.tbr ?? false;
       _isTandem = book.isTandem ?? false;
     });
   }

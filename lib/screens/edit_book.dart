@@ -867,6 +867,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Use repository.addBook with the book ID to update in place
       // The repository properly converts field names and handles the update
       await repository.addBook(bookToUpdate);
+      if (_tbr) {
+        await repository.clearTbrForLinkedCopies(widget.book.bookId!);
+      }
 
       // Save rating fields
       final ratingRepository = BookRatingFieldRepository(db);
