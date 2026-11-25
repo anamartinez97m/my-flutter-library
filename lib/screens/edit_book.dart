@@ -882,7 +882,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Use repository.addBook with the book ID to update in place
       // The repository properly converts field names and handles the update
       await repository.addBook(bookToUpdate);
-      if (tbrToggled && tbr) {
+      final relinked = _selectedOriginalBookId != widget.book.originalBookId;
+      if (tbr && (tbrToggled || relinked)) {
         await repository.clearTbrForLinkedCopies(widget.book.bookId!);
       }
 
