@@ -30,7 +30,7 @@ class AuthorCatalogResult {
 /// Loads every book an author has published from Open Library and Google
 /// Books, merged and cleaned, with a per-author cache and user corrections.
 class AuthorCatalogService {
-  static const _cachePrefix = 'author_catalog_cache_v1|';
+  static const _cachePrefix = 'author_catalog_cache_v2|';
   static const _overridesPrefix = 'author_catalog_overrides_v1|';
   static const _languagePrefix = 'author_catalog_language_v1|';
   static const cacheLifetime = Duration(days: 7);
@@ -256,6 +256,13 @@ class AuthorCatalogService {
                 .whereType<String>()
                 .toList();
         if (!_keep(author, title, authors)) continue;
+        // langRestrict is not reliable, so check each volume's language too.
+        final volumeLanguage = (info['language'] as String?)?.split('-').first;
+        if (langCode != null &&
+            volumeLanguage != null &&
+            volumeLanguage.toLowerCase() != langCode) {
+          continue;
+        }
         final date = info['publishedDate'] as String?;
         final images = info['imageLinks'] as Map<String, dynamic>?;
         final thumbnail = images?['thumbnail'] as String?;

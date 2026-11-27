@@ -346,4 +346,52 @@ void main() {
     expect(cached.works, hasLength(2));
     expect(calls, callsBefore);
   });
+
+  test('Google Books volumes in other languages are dropped', () async {
+    SharedPreferences.setMockInitialValues({});
+    Map<String, dynamic> volume(String title, String language, String isbn) => {
+      'volumeInfo': {
+        'title': title,
+        'authors': ['Carley Fortune'],
+        'language': language,
+        'publishedDate': '2024',
+        'industryIdentifiers': [
+          {'type': 'ISBN_13', 'identifier': isbn},
+        ],
+      },
+    };
+    final client = MockClient((request) async {
+      if (request.url.host == 'openlibrary.org') {
+        return http.Response(
+          jsonEncode({
+            'numFound': 1,
+            'docs': [
+              {
+                'key': '/works/3',
+                'title': 'Untitled Carley Fortune',
+                'author_name': ['Carley Fortune'],
+                'isbn': ['9780593638910'],
+              },
+            ],
+          }),
+          200,
+        );
+      }
+      expect(request.url.queryParameters['langRestrict'], 'en');
+      return http.Response(
+        jsonEncode({
+          'items': [
+            volume('Our Perfect Storm', 'en', '9780593638910'),
+            volume('Tous nos étés', 'fr', '9782266333566'),
+            volume('Este Verão Vai Ser Diferente', 'pt-BR', '9789897776486'),
+          ],
+        }),
+        200,
+      );
+    });
+    final result = await AuthorCatalogService(
+      client: client,
+    ).load('Carley Fortune', language: 'English');
+    expect(result.works.map((w) => w.title), ['Our Perfect Storm']);
+  });
 }
