@@ -114,16 +114,23 @@ class AuthorCatalog {
     return result;
   }
 
+  /// Placeholder titles sources use before a book is named, e.g.
+  /// "Untitled Carley Fortune".
+  static bool _isUntitled(String title) =>
+      RegExp(r'^\s*untitled\b', caseSensitive: false).hasMatch(title);
+
   static CatalogWork _combine(CatalogWork existing, CatalogWork work) {
     final years = [existing.year, work.year].whereType<int>();
+    final rename = _isUntitled(existing.title) && !_isUntitled(work.title);
     return CatalogWork(
       key: existing.key,
-      title: existing.title,
+      title: rename ? work.title : existing.title,
       titles: {...existing.titles, ...work.titles},
       authors: existing.authors,
       year: years.isEmpty ? null : years.reduce((a, b) => a < b ? a : b),
       isbns: {...existing.isbns, ...work.isbns},
-      editionIsbn: existing.editionIsbn ?? work.editionIsbn,
+      editionIsbn:
+          rename ? work.editionIsbn : existing.editionIsbn ?? work.editionIsbn,
       coverUrl: existing.coverUrl ?? work.coverUrl,
       pages: existing.pages ?? work.pages,
       sources: {...existing.sources, ...work.sources},
