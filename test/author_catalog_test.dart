@@ -126,6 +126,35 @@ void main() {
     expect(merged.single.titles, containsAll(['The Martian', 'Marciano']));
   });
 
+  test('an Untitled placeholder takes the named edition title and ISBN', () {
+    final merged = AuthorCatalog.merge(
+      [
+        CatalogWork(
+          key: '/works/3',
+          title: 'Untitled Example',
+          titles: {'Untitled Example'},
+          authors: const ['Andy Weir'],
+          isbns: {'9780000000001', '9780000000002'},
+          editionIsbn: '9780000000001',
+          sources: {CatalogSource.openLibrary},
+        ),
+      ],
+      [
+        CatalogWork(
+          key: 'gb:the final title',
+          title: 'The Final Title',
+          titles: {'The Final Title'},
+          authors: const ['Andy Weir'],
+          isbns: {'9780000000002'},
+          editionIsbn: '9780000000002',
+          sources: {CatalogSource.googleBooks},
+        ),
+      ],
+    );
+    expect(merged.single.title, 'The Final Title');
+    expect(merged.single.isbn, '9780000000002');
+  });
+
   test('merge joins works sharing a title or an ISBN', () {
     final merged = AuthorCatalog.merge(
       [
