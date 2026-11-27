@@ -4827,4 +4827,105 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get metadata_set_manually =>
       'La portada y la descripción se pusieron a mano. Vacíalas en Editar libro para volver a buscarlas.';
+
+  @override
+  String get catalog_owned => 'Tengo';
+
+  @override
+  String get catalog_missing => 'Me faltan';
+
+  @override
+  String get catalog_search_hint => 'Buscar libros de este autor';
+
+  @override
+  String get catalog_filter_all => 'Todos';
+
+  @override
+  String get catalog_filter_unread => 'Sin leer';
+
+  @override
+  String catalog_language(String language) {
+    return 'Idioma: $language';
+  }
+
+  @override
+  String get catalog_any_language => 'Cualquier idioma';
+
+  @override
+  String get catalog_sort_oldest => 'Más antiguos primero';
+
+  @override
+  String get catalog_sort_newest => 'Más recientes primero';
+
+  @override
+  String get catalog_sort_title => 'Título A–Z';
+
+  @override
+  String catalog_sources(String sources) {
+    return 'Fuentes: $sources';
+  }
+
+  @override
+  String catalog_source_unavailable(String source) {
+    return '$source no disponible';
+  }
+
+  @override
+  String get catalog_other_books => 'Otros libros';
+
+  @override
+  String get catalog_all_books => 'Todos los libros';
+
+  @override
+  String get catalog_year_unknown => 'Año desconocido';
+
+  @override
+  String catalog_saga_owned(int count) {
+    return '$count en tu biblioteca';
+  }
+
+  @override
+  String get catalog_owned_tag => 'En biblioteca';
+
+  @override
+  String get catalog_library_only_tag => 'Solo en tu biblioteca';
+
+  @override
+  String get catalog_add_to_library => 'Añadir a mi biblioteca';
+
+  @override
+  String get catalog_add_tbreleased => 'Añadir como TBReleased';
+
+  @override
+  String get catalog_link_existing => 'Es un libro que ya tengo…';
+
+  @override
+  String get catalog_pick_book => '¿Cuál de tus libros es?';
+
+  @override
+  String get catalog_not_my_copy => 'No es mi ejemplar';
+
+  @override
+  String get catalog_hide => 'Ocultar de esta lista';
+
+  @override
+  String get catalog_unhide => 'Volver a mostrar en la lista';
+
+  @override
+  String catalog_show_hidden(int count) {
+    return 'Mostrar ocultos ($count)';
+  }
+
+  @override
+  String get catalog_dont_show_hidden => 'No mostrar ocultos';
+
+  @override
+  String get catalog_open_book => 'Abrir libro';
+
+  @override
+  String get catalog_no_matches => 'Ningún libro coincide';
+
+  @override
+  String get catalog_load_failed =>
+      'No se pudo conectar con Open Library ni Google Books. Desliza hacia abajo para reintentar.';
 }

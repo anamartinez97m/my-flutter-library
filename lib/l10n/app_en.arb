@@ -2104,5 +2104,50 @@
   "cover_image_url_hint": "Paste a link to the cover image",
   "book_description": "Description",
   "manual_metadata_hint": "If you change these, refreshing the book won't replace them. Clear both to fetch them again.",
-  "metadata_set_manually": "The cover and description were set manually. Clear them in Edit Book to fetch them again."
+  "metadata_set_manually": "The cover and description were set manually. Clear them in Edit Book to fetch them again.",
+  "catalog_owned": "Owned",
+  "catalog_missing": "Missing",
+  "catalog_search_hint": "Search this author's books",
+  "catalog_filter_all": "All",
+  "catalog_filter_unread": "Unread",
+  "catalog_language": "Language: {language}",
+  "@catalog_language": {
+    "placeholders": { "language": {"type": "String"} }
+  },
+  "catalog_any_language": "Any language",
+  "catalog_sort_oldest": "Oldest first",
+  "catalog_sort_newest": "Newest first",
+  "catalog_sort_title": "Title A–Z",
+  "catalog_sources": "Sources: {sources}",
+  "@catalog_sources": {
+    "placeholders": { "sources": {"type": "String"} }
+  },
+  "catalog_source_unavailable": "{source} unavailable",
+  "@catalog_source_unavailable": {
+    "placeholders": { "source": {"type": "String"} }
+  },
+  "catalog_other_books": "Other books",
+  "catalog_all_books": "All books",
+  "catalog_year_unknown": "Year unknown",
+  "catalog_saga_owned": "{count} in your library",
+  "@catalog_saga_owned": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+  "catalog_owned_tag": "In library",
+  "catalog_library_only_tag": "Only in your library",
+  "catalog_add_to_library": "Add to my library",
+  "catalog_add_tbreleased": "Add as TBReleased",
+  "catalog_link_existing": "This is a book I already have…",
+  "catalog_pick_book": "Which of your books is it?",
+  "catalog_not_my_copy": "Not my copy",
+  "catalog_hide": "Hide from this list",
+  "catalog_unhide": "Show in this list again",
+  "catalog_show_hidden": "Show hidden ({count})",
+  "@catalog_show_hidden": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+  "catalog_dont_show_hidden": "Don't show hidden",
+  "catalog_open_book": "Open book",
+  "catalog_no_matches": "No books match",
+  "catalog_load_failed": "Couldn't reach Open Library or Google Books. Pull to retry."
 }

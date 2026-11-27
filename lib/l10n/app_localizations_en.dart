@@ -4773,4 +4773,105 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get metadata_set_manually =>
       'The cover and description were set manually. Clear them in Edit Book to fetch them again.';
+
+  @override
+  String get catalog_owned => 'Owned';
+
+  @override
+  String get catalog_missing => 'Missing';
+
+  @override
+  String get catalog_search_hint => 'Search this author\'s books';
+
+  @override
+  String get catalog_filter_all => 'All';
+
+  @override
+  String get catalog_filter_unread => 'Unread';
+
+  @override
+  String catalog_language(String language) {
+    return 'Language: $language';
+  }
+
+  @override
+  String get catalog_any_language => 'Any language';
+
+  @override
+  String get catalog_sort_oldest => 'Oldest first';
+
+  @override
+  String get catalog_sort_newest => 'Newest first';
+
+  @override
+  String get catalog_sort_title => 'Title A–Z';
+
+  @override
+  String catalog_sources(String sources) {
+    return 'Sources: $sources';
+  }
+
+  @override
+  String catalog_source_unavailable(String source) {
+    return '$source unavailable';
+  }
+
+  @override
+  String get catalog_other_books => 'Other books';
+
+  @override
+  String get catalog_all_books => 'All books';
+
+  @override
+  String get catalog_year_unknown => 'Year unknown';
+
+  @override
+  String catalog_saga_owned(int count) {
+    return '$count in your library';
+  }
+
+  @override
+  String get catalog_owned_tag => 'In library';
+
+  @override
+  String get catalog_library_only_tag => 'Only in your library';
+
+  @override
+  String get catalog_add_to_library => 'Add to my library';
+
+  @override
+  String get catalog_add_tbreleased => 'Add as TBReleased';
+
+  @override
+  String get catalog_link_existing => 'This is a book I already have…';
+
+  @override
+  String get catalog_pick_book => 'Which of your books is it?';
+
+  @override
+  String get catalog_not_my_copy => 'Not my copy';
+
+  @override
+  String get catalog_hide => 'Hide from this list';
+
+  @override
+  String get catalog_unhide => 'Show in this list again';
+
+  @override
+  String catalog_show_hidden(int count) {
+    return 'Show hidden ($count)';
+  }
+
+  @override
+  String get catalog_dont_show_hidden => 'Don\'t show hidden';
+
+  @override
+  String get catalog_open_book => 'Open book';
+
+  @override
+  String get catalog_no_matches => 'No books match';
+
+  @override
+  String get catalog_load_failed =>
+      'Couldn\'t reach Open Library or Google Books. Pull to retry.';
 }
