@@ -137,7 +137,12 @@ class _AuthorCatalogViewState extends State<AuthorCatalogView> {
             (_) => AddBookScreen(
               prefill: BookPrefill(
                 title: work.title,
-                author: widget.author,
+                author: [
+                  widget.author,
+                  ...work.authors.where(
+                    (a) => !AuthorCatalog.sameAuthor(widget.author, a),
+                  ),
+                ].join(', '),
                 year: work.year,
                 isbn: work.isbn,
                 coverUrl: work.coverUrl,

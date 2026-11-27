@@ -95,6 +95,37 @@ void main() {
     });
   });
 
+  test('non-Latin names, series subtitles and ordinary words', () {
+    expect(AuthorCatalog.sameAuthor('村上春樹', '村上春樹'), isTrue);
+    expect(AuthorCatalog.isNoise('ノルウェイの森'), isFalse);
+    expect(AuthorCatalog.isNoise('Wolf Pack'), isFalse);
+    expect(
+      AuthorCatalog.sameTitle('Dune: House Atreides', 'Dune: House Harkonnen'),
+      isFalse,
+    );
+    expect(
+      AuthorCatalog.sameTitle('The Martian: A Novel', 'The Martian'),
+      isTrue,
+    );
+  });
+
+  test('merge collapses every row an incoming work matches', () {
+    final merged = AuthorCatalog.merge(
+      [
+        _work('The Martian', year: 2011),
+        _work('Marciano', isbns: {'9788490705780'}),
+      ],
+      [
+        _work(
+          'The Martian',
+          isbns: {'9788490705780'},
+          source: CatalogSource.googleBooks,
+        ),
+      ],
+    );
+    expect(merged.single.titles, containsAll(['The Martian', 'Marciano']));
+  });
+
   test('merge joins works sharing a title or an ISBN', () {
     final merged = AuthorCatalog.merge(
       [

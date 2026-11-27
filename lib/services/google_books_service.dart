@@ -345,6 +345,14 @@ class GoogleBooksService {
       'korean': 'ko',
       'coreano': 'ko',
       'ko': 'ko',
+
+      'catalan': 'ca',
+      'català': 'ca',
+      'ca': 'ca',
+
+      'dutch': 'nl',
+      'nederlands': 'nl',
+      'nl': 'nl',
     };
 
     return languageMap[normalized];

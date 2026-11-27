@@ -11,11 +11,29 @@ class AuthorCatalog {
 
   /// Key used to recognise the same title across sources and languages.
   static String titleKey(String? title) =>
-      TextNormalizer.normalize(MetadataMatch.mainTitle(title));
+      _normalized(MetadataMatch.mainTitle(title));
+
+  /// Normalized text; non-Latin text the normalizer would empty is kept
+  /// lowercased instead.
+  static String _normalized(String? text) {
+    final normalized = TextNormalizer.normalize(text);
+    if (normalized.isNotEmpty) return normalized;
+    return (text ?? '').trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  /// Whether [a] and [b] are the same title: equal, or equal once one of
+  /// them drops its subtitle ("Dune: House Atreides" is not "Dune: House
+  /// Harkonnen", but "The Martian: A Novel" is "The Martian").
+  static bool sameTitle(String a, String b) {
+    final fullA = _normalized(a), fullB = _normalized(b);
+    if (fullA.isEmpty || fullB.isEmpty) return false;
+    if (fullA == fullB) return true;
+    final mainA = titleKey(a), mainB = titleKey(b);
+    return mainA == mainB && (mainA == fullA || mainB == fullB);
+  }
 
   static final List<RegExp> _noisePatterns = [
     RegExp(r'\bsumm?ary\b'),
-    RegExp(r'\banalysis\b'),
     RegExp(r'\bstudy guide\b'),
     RegExp(r'\bsparknotes\b'),
     RegExp(r'\bcliffs? ?notes\b'),
@@ -28,27 +46,22 @@ class AuthorCatalog {
     RegExp(r'\w part (one|two|three|four|1|2|3|4)$'),
     RegExp(r'\bconversation starters\b'),
     RegExp(r'\bworkbook\b'),
-    RegExp(r'\btrivia\b'),
-    RegExp(r'\bquiz\b'),
     RegExp(r'\bcolou?ring book\b'),
-    RegExp(r'\bcalendar\b'),
     RegExp(r'\bunofficial\b'),
     RegExp(r'\bresumen\b'),
     RegExp(r'\bestuche\b'),
-    RegExp(r'\bpack\b'),
     RegExp(r'\bguia (de )?(estudio|de lectura)\b'),
   ];
 
   /// Whether [title] looks like a box set, summary, study guide or similar
   /// rather than a book the author wrote.
   static bool isNoise(String? title) {
+    if (title == null || title.trim().isEmpty) return true;
     final normalized = TextNormalizer.normalize(title);
-    if (normalized.isEmpty) return true;
     return _noisePatterns.any((p) => p.hasMatch(normalized));
   }
 
-  static String _compact(String name) =>
-      TextNormalizer.normalize(name).replaceAll(' ', '');
+  static String _compact(String name) => _normalized(name).replaceAll(' ', '');
 
   static Set<String> _nameTokens(String name) =>
       TextNormalizer.normalize(
@@ -81,31 +94,37 @@ class AuthorCatalog {
   ) {
     final result = [...works];
     for (final work in incoming) {
-      final keys = work.titles.map(titleKey).toSet();
-      final index = result.indexWhere(
-        (w) =>
-            w.titles.map(titleKey).any(keys.contains) ||
-            w.isbns.any(work.isbns.contains),
-      );
-      if (index < 0) {
+      bool same(CatalogWork w) =>
+          w.titles.any((a) => work.titles.any((b) => sameTitle(a, b))) ||
+          w.isbns.any(work.isbns.contains);
+      final matches = result.where(same).toList();
+      if (matches.isEmpty) {
         result.add(work);
         continue;
       }
-      final existing = result[index];
-      final years = [existing.year, work.year].whereType<int>();
-      result[index] = CatalogWork(
-        key: existing.key,
-        title: existing.title,
-        titles: {...existing.titles, ...work.titles},
-        authors: existing.authors,
-        year: years.isEmpty ? null : years.reduce((a, b) => a < b ? a : b),
-        isbns: {...existing.isbns, ...work.isbns},
-        coverUrl: existing.coverUrl ?? work.coverUrl,
-        pages: existing.pages ?? work.pages,
-        sources: {...existing.sources, ...work.sources},
-      );
+      result.removeWhere((w) => matches.skip(1).contains(w));
+      result[result.indexOf(matches.first)] = matches
+          .skip(1)
+          .followedBy([work])
+          .fold(matches.first, _combine);
     }
     return result;
+  }
+
+  static CatalogWork _combine(CatalogWork existing, CatalogWork work) {
+    final years = [existing.year, work.year].whereType<int>();
+    return CatalogWork(
+      key: existing.key,
+      title: existing.title,
+      titles: {...existing.titles, ...work.titles},
+      authors: existing.authors,
+      year: years.isEmpty ? null : years.reduce((a, b) => a < b ? a : b),
+      isbns: {...existing.isbns, ...work.isbns},
+      editionIsbn: existing.editionIsbn ?? work.editionIsbn,
+      coverUrl: existing.coverUrl ?? work.coverUrl,
+      pages: existing.pages ?? work.pages,
+      sources: {...existing.sources, ...work.sources},
+    );
   }
 
   /// Whether the library [book] wrote by [author].
@@ -127,8 +146,8 @@ class AuthorCatalog {
           .toList();
 
   static bool _exactTitle(Book book, CatalogWork work) {
-    final key = titleKey(book.name);
-    return key.isNotEmpty && work.titles.any((t) => titleKey(t) == key);
+    final name = book.name;
+    return name != null && work.titles.any((t) => sameTitle(name, t));
   }
 
   static bool _fuzzyTitle(Book book, CatalogWork work) {

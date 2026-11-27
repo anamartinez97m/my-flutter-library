@@ -250,9 +250,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _nameController.text = prefill.title;
       _authorController.text = prefill.author ?? '';
       _selectedAuthors =
-          prefill.author == null || prefill.author!.trim().isEmpty
-              ? []
-              : [prefill.author!.trim()];
+          (prefill.author ?? '')
+              .split(',')
+              .map((author) => author.trim())
+              .where((author) => author.isNotEmpty)
+              .toList();
       _publicationYearController.text = prefill.year?.toString() ?? '';
       _isbnController.text = prefill.isbn ?? '';
       _pagesController.text = prefill.pages?.toString() ?? '';

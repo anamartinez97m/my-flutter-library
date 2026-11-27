@@ -24,6 +24,9 @@ class CatalogWork {
 
   /// ISBN-13s of every known edition.
   final Set<String> isbns;
+
+  /// ISBN of the edition [title] belongs to, when known.
+  final String? editionIsbn;
   final String? coverUrl;
   final int? pages;
   final Set<String> sources;
@@ -35,13 +38,14 @@ class CatalogWork {
     required this.authors,
     this.year,
     this.isbns = const {},
+    this.editionIsbn,
     this.coverUrl,
     this.pages,
     required this.sources,
   });
 
   /// An ISBN to prefill when adding this book.
-  String? get isbn => isbns.isEmpty ? null : isbns.first;
+  String? get isbn => editionIsbn;
 
   Map<String, dynamic> toJson() => {
     'key': key,
@@ -50,6 +54,7 @@ class CatalogWork {
     'authors': authors,
     'year': year,
     'isbns': isbns.toList(),
+    'editionIsbn': editionIsbn,
     'coverUrl': coverUrl,
     'pages': pages,
     'sources': sources.toList(),
@@ -62,6 +67,7 @@ class CatalogWork {
     authors: (json['authors'] as List<dynamic>).cast<String>(),
     year: json['year'] as int?,
     isbns: {...(json['isbns'] as List<dynamic>? ?? const []).cast<String>()},
+    editionIsbn: json['editionIsbn'] as String?,
     coverUrl: json['coverUrl'] as String?,
     pages: json['pages'] as int?,
     sources: {...(json['sources'] as List<dynamic>).cast<String>()},

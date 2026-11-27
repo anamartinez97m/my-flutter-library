@@ -195,7 +195,7 @@ class AuthorCatalogService {
             (langCode == null ? null : edition?['cover_i']) ?? doc['cover_i'];
         works.add(
           CatalogWork(
-            key: AuthorCatalog.titleKey(shownTitle),
+            key: doc['key'] as String? ?? AuthorCatalog.titleKey(title),
             title: shownTitle!,
             titles: {title!, shownTitle},
             authors: authors,
@@ -204,6 +204,10 @@ class AuthorCatalogService {
               ..._isbns(edition?['isbn'] as List<dynamic>?),
               ..._isbns(doc['isbn'] as List<dynamic>?),
             },
+            editionIsbn:
+                langCode == null
+                    ? null
+                    : _isbns(edition?['isbn'] as List<dynamic>?).firstOrNull,
             coverUrl:
                 coverId is int
                     ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
@@ -255,6 +259,11 @@ class AuthorCatalogService {
         final date = info['publishedDate'] as String?;
         final images = info['imageLinks'] as Map<String, dynamic>?;
         final thumbnail = images?['thumbnail'] as String?;
+        final isbns = _isbns(
+          (info['industryIdentifiers'] as List<dynamic>? ?? const []).map(
+            (id) => id is Map ? id['identifier'] : null,
+          ),
+        );
         works.add(
           CatalogWork(
             key: AuthorCatalog.titleKey(title),
@@ -265,11 +274,8 @@ class AuthorCatalogService {
                 date != null && date.length >= 4
                     ? int.tryParse(date.substring(0, 4))
                     : null,
-            isbns: _isbns(
-              (info['industryIdentifiers'] as List<dynamic>? ?? const []).map(
-                (id) => id is Map ? id['identifier'] : null,
-              ),
-            ),
+            isbns: isbns,
+            editionIsbn: isbns.firstOrNull,
             coverUrl: thumbnail?.replaceFirst('http://', 'https://'),
             pages: info['pageCount'] as int?,
             sources: {CatalogSource.googleBooks},
