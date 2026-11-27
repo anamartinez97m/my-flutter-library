@@ -11,7 +11,7 @@ import 'package:myrandomlibrary/services/open_library_service.dart';
 import 'package:myrandomlibrary/utils/author_catalog.dart';
 
 /// Whether catalog rows show a cover thumbnail.
-const bool _showCovers = false;
+const bool _showCovers = true;
 
 /// Every book [author] has published (Open Library + Google Books), marked
 /// against the library, with filters, search and corrections.
@@ -445,167 +445,179 @@ class _AuthorCatalogViewState extends State<AuthorCatalogView> {
       CatalogSource.googleBooks,
     }.difference(result.sources);
 
+    final header = <Widget>[
+      if (_loading)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: LinearProgressIndicator(
+            color: V2Colors.primary,
+            backgroundColor: V2Colors.divider,
+          ),
+        ),
+      Row(
+        children: [
+          _stat('$owned / ${visible.length}', l10n.catalog_owned),
+          const SizedBox(width: 8),
+          _stat('$read', l10n.read_label),
+          const SizedBox(width: 8),
+          _stat('${visible.length - owned}', l10n.catalog_missing),
+        ],
+      ),
+      const SizedBox(height: 10),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(V2Radii.pill),
+        child: LinearProgressIndicator(
+          value: visible.isEmpty ? 0 : owned / visible.length,
+          minHeight: V2Sizes.progress,
+          color: V2Colors.primary,
+          backgroundColor: V2Colors.divider,
+        ),
+      ),
+      const SizedBox(height: 14),
+      TextField(
+        controller: _searchController,
+        onChanged: (_) => setState(() {}),
+        style: _text(14, FontWeight.w500, V2Colors.textPrimary),
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: l10n.catalog_search_hint,
+          hintStyle: _text(13, FontWeight.w400, V2Colors.textSubtle),
+          prefixIcon: Icon(Icons.search, color: V2Colors.textSubtle),
+          suffixIcon:
+              _searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                    icon: Icon(Icons.close, color: V2Colors.textSubtle),
+                    onPressed: () => setState(() => _searchController.clear()),
+                  ),
+          filled: true,
+          fillColor: V2Colors.searchBackground,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(V2Radii.input),
+            borderSide: BorderSide(color: V2Colors.borderNeutral),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(V2Radii.input),
+            borderSide: BorderSide(color: V2Colors.borderNeutral),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(V2Radii.input),
+            borderSide: BorderSide(color: V2Colors.primary),
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (final (filter, label) in [
+            (CatalogFilter.all, l10n.catalog_filter_all),
+            (CatalogFilter.missing, l10n.catalog_missing),
+            (CatalogFilter.owned, l10n.catalog_owned),
+            (CatalogFilter.unread, l10n.catalog_filter_unread),
+          ])
+            _chip(
+              label,
+              selected: _filter == filter,
+              onTap: () => setState(() => _filter = filter),
+            ),
+        ],
+      ),
+      const SizedBox(height: 6),
+      Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          _chip(
+            l10n.catalog_language(_language ?? l10n.catalog_any_language),
+            icon: Icons.language,
+            muted: true,
+            onTap: _pickLanguage,
+          ),
+          PopupMenuButton<CatalogSort>(
+            color: V2Colors.surface,
+            onSelected: (sort) => setState(() => _sort = sort),
+            itemBuilder:
+                (context) => [
+                  for (final sort in CatalogSort.values)
+                    CheckedPopupMenuItem(
+                      value: sort,
+                      checked: sort == _sort,
+                      child: Text(
+                        _sortLabel(l10n, sort),
+                        style: TextStyle(color: V2Colors.textPrimary),
+                      ),
+                    ),
+                ],
+            child: _chip(
+              _sortLabel(l10n, _sort),
+              icon: Icons.swap_vert,
+              muted: true,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Text(
+        [
+          l10n.catalog_sources(_sourceNames(result.sources)),
+          for (final source in failedSources)
+            l10n.catalog_source_unavailable(_sourceNames({source})),
+        ].join(' · '),
+        style: _text(11, FontWeight.w500, V2Colors.textSubtle),
+      ),
+      if (result.sources.isEmpty && result.works.isEmpty) ...[
+        const SizedBox(height: 32),
+        Text(
+          l10n.catalog_load_failed,
+          textAlign: TextAlign.center,
+          style: _text(14, FontWeight.w500, V2Colors.textSubtle),
+        ),
+      ] else if (filtered.isEmpty) ...[
+        const SizedBox(height: 32),
+        Text(
+          items.isEmpty ? l10n.no_catalog_results : l10n.catalog_no_matches,
+          textAlign: TextAlign.center,
+          style: _text(14, FontWeight.w500, V2Colors.textSubtle),
+        ),
+      ],
+    ];
+    // Built lazily so covers only load for rows scrolled into view.
+    final rows = <Widget Function()>[
+      for (final section in sections) ...[
+        () => _sectionHeader(l10n, section, hasSagas),
+        for (final item in section.items) () => _card(l10n, item),
+      ],
+    ];
+    final footer = <Widget>[
+      if (hiddenCount > 0)
+        Center(
+          child: TextButton(
+            onPressed: () => setState(() => _showHidden = !_showHidden),
+            child: Text(
+              _showHidden
+                  ? l10n.catalog_dont_show_hidden
+                  : l10n.catalog_show_hidden(hiddenCount),
+              style: _text(13, FontWeight.w600, V2Colors.primary),
+            ),
+          ),
+        ),
+    ];
+
     return RefreshIndicator(
       color: V2Colors.primary,
       onRefresh: () => _load(refresh: true),
-      child: ListView(
+      child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(16, 16, 16, bottom + 24),
-        children: [
-          if (_loading)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: LinearProgressIndicator(
-                color: V2Colors.primary,
-                backgroundColor: V2Colors.divider,
-              ),
-            ),
-          Row(
-            children: [
-              _stat('$owned / ${visible.length}', l10n.catalog_owned),
-              const SizedBox(width: 8),
-              _stat('$read', l10n.read_label),
-              const SizedBox(width: 8),
-              _stat('${visible.length - owned}', l10n.catalog_missing),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(V2Radii.pill),
-            child: LinearProgressIndicator(
-              value: visible.isEmpty ? 0 : owned / visible.length,
-              minHeight: V2Sizes.progress,
-              color: V2Colors.primary,
-              backgroundColor: V2Colors.divider,
-            ),
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _searchController,
-            onChanged: (_) => setState(() {}),
-            style: _text(14, FontWeight.w500, V2Colors.textPrimary),
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: l10n.catalog_search_hint,
-              hintStyle: _text(13, FontWeight.w400, V2Colors.textSubtle),
-              prefixIcon: Icon(Icons.search, color: V2Colors.textSubtle),
-              suffixIcon:
-                  _searchController.text.isEmpty
-                      ? null
-                      : IconButton(
-                        icon: Icon(Icons.close, color: V2Colors.textSubtle),
-                        onPressed:
-                            () => setState(() => _searchController.clear()),
-                      ),
-              filled: true,
-              fillColor: V2Colors.searchBackground,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(V2Radii.input),
-                borderSide: BorderSide(color: V2Colors.borderNeutral),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(V2Radii.input),
-                borderSide: BorderSide(color: V2Colors.borderNeutral),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(V2Radii.input),
-                borderSide: BorderSide(color: V2Colors.primary),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final (filter, label) in [
-                (CatalogFilter.all, l10n.catalog_filter_all),
-                (CatalogFilter.missing, l10n.catalog_missing),
-                (CatalogFilter.owned, l10n.catalog_owned),
-                (CatalogFilter.unread, l10n.catalog_filter_unread),
-              ])
-                _chip(
-                  label,
-                  selected: _filter == filter,
-                  onTap: () => setState(() => _filter = filter),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              _chip(
-                l10n.catalog_language(_language ?? l10n.catalog_any_language),
-                icon: Icons.language,
-                muted: true,
-                onTap: _pickLanguage,
-              ),
-              PopupMenuButton<CatalogSort>(
-                color: V2Colors.surface,
-                onSelected: (sort) => setState(() => _sort = sort),
-                itemBuilder:
-                    (context) => [
-                      for (final sort in CatalogSort.values)
-                        CheckedPopupMenuItem(
-                          value: sort,
-                          checked: sort == _sort,
-                          child: Text(
-                            _sortLabel(l10n, sort),
-                            style: TextStyle(color: V2Colors.textPrimary),
-                          ),
-                        ),
-                    ],
-                child: _chip(
-                  _sortLabel(l10n, _sort),
-                  icon: Icons.swap_vert,
-                  muted: true,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            [
-              l10n.catalog_sources(_sourceNames(result.sources)),
-              for (final source in failedSources)
-                l10n.catalog_source_unavailable(_sourceNames({source})),
-            ].join(' · '),
-            style: _text(11, FontWeight.w500, V2Colors.textSubtle),
-          ),
-          if (result.sources.isEmpty && result.works.isEmpty) ...[
-            const SizedBox(height: 32),
-            Text(
-              l10n.catalog_load_failed,
-              textAlign: TextAlign.center,
-              style: _text(14, FontWeight.w500, V2Colors.textSubtle),
-            ),
-          ] else if (filtered.isEmpty) ...[
-            const SizedBox(height: 32),
-            Text(
-              items.isEmpty ? l10n.no_catalog_results : l10n.catalog_no_matches,
-              textAlign: TextAlign.center,
-              style: _text(14, FontWeight.w500, V2Colors.textSubtle),
-            ),
-          ],
-          for (final section in sections) ...[
-            _sectionHeader(l10n, section, hasSagas),
-            for (final item in section.items) _card(l10n, item),
-          ],
-          if (hiddenCount > 0)
-            Center(
-              child: TextButton(
-                onPressed: () => setState(() => _showHidden = !_showHidden),
-                child: Text(
-                  _showHidden
-                      ? l10n.catalog_dont_show_hidden
-                      : l10n.catalog_show_hidden(hiddenCount),
-                  style: _text(13, FontWeight.w600, V2Colors.primary),
-                ),
-              ),
-            ),
-        ],
+        itemCount: header.length + rows.length + footer.length,
+        itemBuilder: (context, index) {
+          if (index < header.length) return header[index];
+          index -= header.length;
+          if (index < rows.length) return rows[index]();
+          return footer[index - rows.length];
+        },
       ),
     );
   }
@@ -725,7 +737,7 @@ class _AuthorCatalogViewState extends State<AuthorCatalogView> {
     ),
   );
 
-  Widget _cover(AuthorCatalogItem item) {
+  Widget _cover(BuildContext context, AuthorCatalogItem item) {
     final url = item.coverUrl;
     final placeholder = Container(
       width: 44,
@@ -744,6 +756,7 @@ class _AuthorCatalogViewState extends State<AuthorCatalogView> {
         url,
         width: 44,
         height: 66,
+        cacheWidth: (44 * MediaQuery.devicePixelRatioOf(context)).round(),
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => placeholder,
       ),
@@ -792,7 +805,10 @@ class _AuthorCatalogViewState extends State<AuthorCatalogView> {
       ),
       child: Row(
         children: [
-          if (_showCovers) ...[_cover(item), const SizedBox(width: 12)],
+          if (_showCovers) ...[
+            _cover(context, item),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
