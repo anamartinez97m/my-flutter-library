@@ -266,7 +266,7 @@ class AuthorCatalogService {
         );
         works.add(
           CatalogWork(
-            key: AuthorCatalog.titleKey(title),
+            key: 'gb:${AuthorCatalog.fullTitleKey(title)}',
             title: title!,
             titles: {title},
             authors: authors,

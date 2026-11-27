@@ -338,6 +338,7 @@ void main() {
     expect(result.works.map((w) => w.title), ['The Martian', 'Randomize']);
     expect(result.works.first.year, 2011);
     expect(result.works.last.coverUrl, 'https://books.google.com/x');
+    expect(result.works.last.key, 'gb:randomize');
 
     final callsBefore = calls;
     final cached = await service.load('Andy Weir');

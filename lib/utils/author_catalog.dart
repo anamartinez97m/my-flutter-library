@@ -13,6 +13,9 @@ class AuthorCatalog {
   static String titleKey(String? title) =>
       _normalized(MetadataMatch.mainTitle(title));
 
+  /// Normalized full title, subtitle included.
+  static String fullTitleKey(String? title) => _normalized(title);
+
   /// Normalized text; non-Latin text the normalizer would empty is kept
   /// lowercased instead.
   static String _normalized(String? text) {
