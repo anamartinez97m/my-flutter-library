@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -183,7 +183,7 @@ class BookCardV2 extends StatelessWidget {
         meta.add(
           _MetaItem(
             icon: Icons.notifications_none_outlined,
-            text: DateFormat('dd/MM/yyyy HH:mm').format(notification),
+            text: formatDateTime(notification),
           ),
         );
       }
@@ -233,7 +233,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.calendar_today_outlined,
-          text: book.acquiredDate!.split('-').reversed.join('/'),
+          text: formatDateForDisplay(book.acquiredDate),
         ),
       );
     }
@@ -483,10 +483,7 @@ class _ReleaseCountdownFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final releaseDate = countdown.releaseDate;
-    final date =
-        '${releaseDate.day.toString().padLeft(2, '0')}/'
-        '${releaseDate.month.toString().padLeft(2, '0')}/'
-        '${releaseDate.year}';
+    final date = formatDate(releaseDate);
 
     final (Color background, Color line, Color accent) = switch (countdown
         .state) {

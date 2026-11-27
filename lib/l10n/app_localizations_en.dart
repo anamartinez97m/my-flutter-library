@@ -3339,7 +3339,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get library_display_subtitle =>
-      'Home Filters, Card Fields, Sort Order, TBR Limit';
+      'Home Filters, Card Fields, TBR Limit, Date Format, Week Start';
+
+  @override
+  String get date_format => 'Date Format';
+
+  @override
+  String get week_starts_on => 'Week starts on';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get sunday => 'Sunday';
 
   @override
   String get library_customization => 'Library Customization';

@@ -6065,8 +6065,32 @@ abstract class AppLocalizations {
   /// No description provided for @library_display_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Home Filters, Card Fields, Sort Order, TBR Limit'**
+  /// **'Home Filters, Card Fields, TBR Limit, Date Format, Week Start'**
   String get library_display_subtitle;
+
+  /// No description provided for @date_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Format'**
+  String get date_format;
+
+  /// No description provided for @week_starts_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Week starts on'**
+  String get week_starts_on;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
 
   /// No description provided for @library_customization.
   ///

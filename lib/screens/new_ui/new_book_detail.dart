@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/config/app_theme.dart';
@@ -1582,15 +1581,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  String _formatDateTime(String isoString) {
-    try {
-      final dateTime = DateTime.parse(isoString);
-      return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
-          '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return isoString.split('T')[0]; // Fallback to date only
-    }
-  }
+  String _formatDateTime(String isoString) =>
+      formatDateTimeForDisplay(isoString);
 
   /// Convert database status values to user-friendly display values
   String _getStatusDisplayValue(String dbValue, AppLocalizations l10n) {
@@ -3526,14 +3518,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 icon: Icons.calendar_today,
                                 label:
                                     AppLocalizations.of(context)!.acquired_date,
-                                value: () {
-                                  final a = _currentBook.acquiredDate!;
-                                  final parts = a.split('-');
-                                  if (parts.length == 3) {
-                                    return '${parts[2]}/${parts[1]}/${parts[0]}';
-                                  }
-                                  return a;
-                                }(),
+                                value: formatDateForDisplay(
+                                  _currentBook.acquiredDate,
+                                ),
                               ),
                             );
                           }
@@ -4080,7 +4067,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             ),
                             subtitle: Text(
                               AppLocalizations.of(context)!.scheduled_for(
-                                DateFormat('dd/MM/yyyy HH:mm').format(
+                                formatDateTime(
                                   parseStoredDate(
                                     _currentBook.notificationDatetime,
                                   )!,
@@ -5261,7 +5248,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${AppLocalizations.of(context)!.target}: ${club.targetDate}',
+                                '${AppLocalizations.of(context)!.target}: ${formatDateForDisplay(club.targetDate)}',
                                 style: TextStyle(fontSize: 14, color: _kSub),
                               ),
                             ],

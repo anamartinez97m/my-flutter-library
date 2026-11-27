@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/utils/publication_date.dart';
 import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/widgets/publication_date_fields.dart';
@@ -2173,7 +2174,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               child: Text(
                 _notificationDateTime != null
-                    ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                    ? '${formatDate(_notificationDateTime!)} at ${_notificationTime!.format(context)}'
                     : l10n.select_notification_date,
                 style: TextStyle(
                   color: _notificationDateTime != null ? null : _kLabel,
@@ -2346,7 +2347,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           decoration: _v2Deco(l10n.acquired_date, Icons.calendar_today),
           child: Text(
             _acquiredYearController.text.isNotEmpty
-                ? _acquiredYearController.text
+                ? formatDateForDisplay(_acquiredYearController.text)
                 : l10n.select_acquired_date,
             style: TextStyle(
               color: _acquiredYearController.text.isNotEmpty ? null : _kLabel,

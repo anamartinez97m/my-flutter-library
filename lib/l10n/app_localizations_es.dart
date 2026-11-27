@@ -3385,7 +3385,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get library_display_subtitle =>
-      'Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR';
+      'Filtros de Inicio, Campos de Tarjeta, Límite TBR, Formato de Fecha, Inicio de Semana';
+
+  @override
+  String get date_format => 'Formato de Fecha';
+
+  @override
+  String get week_starts_on => 'La semana empieza el';
+
+  @override
+  String get monday => 'Lunes';
+
+  @override
+  String get sunday => 'Domingo';
 
   @override
   String get library_customization => 'Personalización de Biblioteca';

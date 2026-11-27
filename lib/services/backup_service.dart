@@ -58,6 +58,9 @@ class BackupService {
     'currency_symbol',
     // Quick stats
     'quick_stats_keys',
+    // Date display
+    'date_display_format',
+    'week_start',
   ];
 
   // SharedPreferences keys for auto backup

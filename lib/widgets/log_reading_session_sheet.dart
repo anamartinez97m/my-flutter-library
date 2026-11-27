@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -80,9 +80,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
     if (isToday) {
       return AppLocalizations.of(context)!.today;
     }
-    final month = DateFormat.MMM().format(_selectedDate);
-    final day = _selectedDate.day.toString();
-    return '$month $day';
+    return formatDate(_selectedDate);
   }
 
   Future<void> _pickDate() async {
