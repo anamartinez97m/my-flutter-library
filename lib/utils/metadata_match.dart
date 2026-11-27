@@ -44,8 +44,8 @@ class MetadataMatch {
       [candidateTitle, candidateSubtitle].whereType<String>().join(' '),
     );
     if (expectedFull.isEmpty || candidateFull.isEmpty) return false;
-    final expectedMain = _tokens(_mainTitle(expected));
-    final candidateMain = _tokens(_mainTitle(candidateTitle));
+    final expectedMain = _tokens(mainTitle(expected));
+    final candidateMain = _tokens(mainTitle(candidateTitle));
 
     if (_sameSet(expectedMain, candidateMain)) return true;
     // A short expected title must not match a longer, different one
@@ -66,8 +66,8 @@ class MetadataMatch {
   /// series notes, rather than a related title such as a sequel.
   static bool titleIsExact(String? expected, String? candidateTitle) =>
       _sameSet(
-        _tokens(_mainTitle(expected)),
-        _tokens(_mainTitle(candidateTitle)),
+        _tokens(mainTitle(expected)),
+        _tokens(mainTitle(candidateTitle)),
       );
 
   /// The [matches] whose whole title is [expected], else those whose main
@@ -122,7 +122,8 @@ class MetadataMatch {
       ) &&
       authorMatches(expectedAuthor, candidateAuthors);
 
-  static String? _mainTitle(String? title) {
+  /// [title] without a subtitle (text after `:`, ` - `…) or bracketed note.
+  static String? mainTitle(String? title) {
     if (title == null) return null;
     final withoutBrackets = title.replaceAll(RegExp(r'[(\[{].*?[)\]}]'), ' ');
     return withoutBrackets.split(RegExp(r'[:.|]| - | – | — ')).first;

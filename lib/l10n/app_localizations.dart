@@ -8471,6 +8471,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The cover and description were set manually. Clear them in Edit Book to fetch them again.'**
   String get metadata_set_manually;
+
+  /// No description provided for @catalog_owned.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get catalog_owned;
+
+  /// No description provided for @catalog_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get catalog_missing;
+
+  /// No description provided for @catalog_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search this author\'s books'**
+  String get catalog_search_hint;
+
+  /// No description provided for @catalog_filter_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get catalog_filter_all;
+
+  /// No description provided for @catalog_filter_unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get catalog_filter_unread;
+
+  /// No description provided for @catalog_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language: {language}'**
+  String catalog_language(String language);
+
+  /// No description provided for @catalog_any_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Any language'**
+  String get catalog_any_language;
+
+  /// No description provided for @catalog_sort_oldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get catalog_sort_oldest;
+
+  /// No description provided for @catalog_sort_newest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get catalog_sort_newest;
+
+  /// No description provided for @catalog_sort_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title A–Z'**
+  String get catalog_sort_title;
+
+  /// No description provided for @catalog_sources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources: {sources}'**
+  String catalog_sources(String sources);
+
+  /// No description provided for @catalog_source_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} unavailable'**
+  String catalog_source_unavailable(String source);
+
+  /// No description provided for @catalog_other_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Other books'**
+  String get catalog_other_books;
+
+  /// No description provided for @catalog_all_books.
+  ///
+  /// In en, this message translates to:
+  /// **'All books'**
+  String get catalog_all_books;
+
+  /// No description provided for @catalog_year_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Year unknown'**
+  String get catalog_year_unknown;
+
+  /// No description provided for @catalog_saga_owned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in your library'**
+  String catalog_saga_owned(int count);
+
+  /// No description provided for @catalog_owned_tag.
+  ///
+  /// In en, this message translates to:
+  /// **'In library'**
+  String get catalog_owned_tag;
+
+  /// No description provided for @catalog_library_only_tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Only in your library'**
+  String get catalog_library_only_tag;
+
+  /// No description provided for @catalog_add_to_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my library'**
+  String get catalog_add_to_library;
+
+  /// No description provided for @catalog_add_tbreleased.
+  ///
+  /// In en, this message translates to:
+  /// **'Add as TBReleased'**
+  String get catalog_add_tbreleased;
+
+  /// No description provided for @catalog_link_existing.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a book I already have…'**
+  String get catalog_link_existing;
+
+  /// No description provided for @catalog_pick_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Which of your books is it?'**
+  String get catalog_pick_book;
+
+  /// No description provided for @catalog_not_my_copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Not my copy'**
+  String get catalog_not_my_copy;
+
+  /// No description provided for @catalog_hide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide from this list'**
+  String get catalog_hide;
+
+  /// No description provided for @catalog_unhide.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in this list again'**
+  String get catalog_unhide;
+
+  /// No description provided for @catalog_show_hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show hidden ({count})'**
+  String catalog_show_hidden(int count);
+
+  /// No description provided for @catalog_dont_show_hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show hidden'**
+  String get catalog_dont_show_hidden;
+
+  /// No description provided for @catalog_open_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Open book'**
+  String get catalog_open_book;
+
+  /// No description provided for @catalog_no_matches.
+  ///
+  /// In en, this message translates to:
+  /// **'No books match'**
+  String get catalog_no_matches;
+
+  /// No description provided for @catalog_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach Open Library or Google Books. Pull to retry.'**
+  String get catalog_load_failed;
 }
 
 class _AppLocalizationsDelegate

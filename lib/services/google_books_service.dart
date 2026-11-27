@@ -43,7 +43,7 @@ class GoogleBooksService {
       // Build URL with optional language restriction
       String urlString = '$_baseUrl&q=isbn:$cleanIsbn&maxResults=5';
       if (language != null && language.isNotEmpty) {
-        final langCode = _mapLanguageCode(language);
+        final langCode = languageCode(language);
         if (langCode != null) {
           urlString += '&langRestrict=$langCode';
           debugPrint('[GoogleBooks] Using language restriction: $langCode');
@@ -119,7 +119,7 @@ class GoogleBooksService {
       // Build URL with optional language restriction
       String urlString = '$_baseUrl&q=$query&maxResults=10';
       if (language != null && language.isNotEmpty) {
-        final langCode = _mapLanguageCode(language);
+        final langCode = languageCode(language);
         if (langCode != null) {
           urlString += '&langRestrict=$langCode';
           debugPrint('[GoogleBooks] Using language restriction: $langCode');
@@ -167,94 +167,6 @@ class GoogleBooksService {
     }
 
     return null;
-  }
-
-  /// Fetch all books by an author with pagination
-  /// Returns a record with the list of BookMetadata and totalItems from the API
-  Future<({List<BookMetadata> books, int totalItems})> fetchByAuthor(
-    String author, {
-    int startIndex = 0,
-    String? language,
-  }) async {
-    try {
-      await _throttleRequest();
-
-      if (author.trim().isEmpty) {
-        debugPrint('[GoogleBooks] Invalid author name');
-        return (books: <BookMetadata>[], totalItems: 0);
-      }
-
-      final query = 'inauthor:${_sanitizeQuery(author)}';
-      String urlString =
-          '$_baseUrl&q=$query&maxResults=40&startIndex=$startIndex&printType=books&orderBy=relevance';
-      if (language != null && language.isNotEmpty) {
-        final langCode = _mapLanguageCode(language);
-        if (langCode != null) {
-          urlString += '&langRestrict=$langCode';
-          debugPrint(
-            '[GoogleBooks] Using language restriction: $langCode (from "$language")',
-          );
-        } else {
-          debugPrint(
-            '[GoogleBooks] WARNING: Could not map language "$language" to API code, no langRestrict applied',
-          );
-        }
-      }
-      final url = Uri.parse(urlString);
-      debugPrint(
-        '[GoogleBooks] Fetching books by author: $author (startIndex: $startIndex, language: $language)',
-      );
-
-      final response = await http.get(url).timeout(_timeout);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as Map<String, dynamic>;
-        final totalItems = data['totalItems'] as int? ?? 0;
-        final items = data['items'] as List<dynamic>?;
-
-        if (items != null && items.isNotEmpty) {
-          debugPrint(
-            '[GoogleBooks] Raw API returned ${items.length} items (totalItems reported: $totalItems)',
-          );
-          final books =
-              items.map((item) {
-                final bookData = item as Map<String, dynamic>;
-                final volInfo =
-                    bookData['volumeInfo'] as Map<String, dynamic>? ?? {};
-                final itemTitle = volInfo['title'] as String? ?? 'NO TITLE';
-                final itemAuthors =
-                    (volInfo['authors'] as List<dynamic>?)?.join(', ') ??
-                    'NO AUTHORS';
-                final itemLang = volInfo['language'] as String? ?? 'NO LANG';
-                final itemDate =
-                    volInfo['publishedDate'] as String? ?? 'NO DATE';
-                final itemISBNs =
-                    volInfo['industryIdentifiers'] as List<dynamic>?;
-                final isbnStr =
-                    itemISBNs
-                        ?.map((id) => '${id['type']}:${id['identifier']}')
-                        .join(', ') ??
-                    'NO ISBN';
-                debugPrint(
-                  '[GoogleBooks] Item: "$itemTitle" | Authors: $itemAuthors | Lang: $itemLang | Date: $itemDate | ISBNs: $isbnStr',
-                );
-                return _parseGoogleBooksResponse(bookData);
-              }).toList();
-          debugPrint(
-            '[GoogleBooks] Parsed ${books.length} books from API page (startIndex: $startIndex)',
-          );
-          return (books: books, totalItems: totalItems);
-        } else {
-          debugPrint('[GoogleBooks] No results for author: $author');
-        }
-      } else {
-        debugPrint('[GoogleBooks] API error: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('[GoogleBooks] Error fetching by author: $e');
-    }
-
-    return (books: <BookMetadata>[], totalItems: 0);
   }
 
   /// Parse Google Books API response into BookMetadata
@@ -372,7 +284,7 @@ class GoogleBooksService {
 
   /// Map book language codes to Google Books API language codes
   /// Returns null if language is not supported or unknown
-  String? _mapLanguageCode(String language) {
+  static String? languageCode(String language) {
     final normalized = language.toLowerCase().trim();
 
     // Common language mappings

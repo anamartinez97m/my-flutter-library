@@ -32,11 +32,41 @@ import 'package:myrandomlibrary/utils/manual_metadata.dart';
 import 'package:myrandomlibrary/utils/metadata_match.dart';
 import '../config/app_theme.dart';
 
+/// Values to start the Add Book form with, e.g. a book picked from an
+/// author's online catalog.
+class BookPrefill {
+  final String title;
+  final String? author;
+  final int? year;
+  final String? isbn;
+  final String? coverUrl;
+  final int? pages;
+
+  /// Status value to preselect, e.g. `TBReleased`.
+  final String? statusValue;
+
+  const BookPrefill({
+    required this.title,
+    this.author,
+    this.year,
+    this.isbn,
+    this.coverUrl,
+    this.pages,
+    this.statusValue,
+  });
+}
+
 class AddBookScreen extends StatefulWidget {
   final UniversePlaceholder? initialPlaceholder;
+  final BookPrefill? prefill;
   final Future<void> Function(int bookId)? onBookSaved;
 
-  const AddBookScreen({super.key, this.initialPlaceholder, this.onBookSaved});
+  const AddBookScreen({
+    super.key,
+    this.initialPlaceholder,
+    this.prefill,
+    this.onBookSaved,
+  });
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -214,6 +244,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _notesController.text = placeholder.notes ?? '';
       _fetchedCoverUrl = placeholder.coverUrl;
       _coverUrlController.text = placeholder.coverUrl ?? '';
+    }
+    final prefill = widget.prefill;
+    if (prefill != null) {
+      _nameController.text = prefill.title;
+      _authorController.text = prefill.author ?? '';
+      _selectedAuthors =
+          prefill.author == null || prefill.author!.trim().isEmpty
+              ? []
+              : [prefill.author!.trim()];
+      _publicationYearController.text = prefill.year?.toString() ?? '';
+      _isbnController.text = prefill.isbn ?? '';
+      _pagesController.text = prefill.pages?.toString() ?? '';
+      _fetchedCoverUrl = prefill.coverUrl;
+      _coverUrlController.text = prefill.coverUrl ?? '';
     }
     _initialFormSnapshot = _formSnapshot();
     _loadDropdownData();
@@ -415,6 +459,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _sagaSuggestions = sagas;
         _sagaUniverseSuggestions = sagaUniverses;
         _isLoading = false;
+        final prefillStatus = widget.prefill?.statusValue?.toLowerCase();
+        if (prefillStatus != null && _selectedStatusId == null) {
+          for (final s in _statusList) {
+            if ((s['value'] as String?)?.toLowerCase() == prefillStatus) {
+              _selectedStatusId = s['status_id'] as int?;
+              _selectedStatusValue = s['value'] as String?;
+              break;
+            }
+          }
+        }
       });
       if (widget.initialPlaceholder != null) {
         final wasClean = !_hasUnsavedChanges;
