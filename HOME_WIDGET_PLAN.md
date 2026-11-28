@@ -1,7 +1,7 @@
 # Android "Currently Reading" home widget: Implementation Plan
 
 > Source: thread in `#devin-my-book-vault` ("how difficult is to implement a widget for android?").
-> Status: **plan only, no code yet**. Open questions are in §7.
+> Status: **all questions answered (§7)**, implementation in progress.
 > Mockups: option **B** (Medium 4×2) was chosen from the four options shared in the thread.
 
 ---
@@ -72,9 +72,9 @@ Goal: the widget and the in-app `ChronometerWidget` are two views of **the same 
 - **▶ Start**: `HomeWidget` interactive background callback (Dart, headless, no UI) runs `ReadingSessionRepository.createSession(isActive: true, startTime: now)`. The same code path the sheet uses at `chronometer_widget.dart` "start".
   - It also writes the timer state to the shared store the sheet already reads from (`SharedPreferences` session-state keys used by `_saveSessionState`/`_loadSessionState`), then refreshes the widget so it shows the running `Chronometer`.
 - **⏸ Pause**: background callback; same semantics as the sheet's pause (session stays active, elapsed time frozen). Widget shows the frozen time + ▶ (resume) + ⏹.
-- **⏹ Stop**: background callback ends the session (`endSession`, `duration_seconds` = elapsed) exactly like the sheet's "finish". Then **opens the app on the book** so you can update the page (see Q2).
+- **⏹ Stop**: ends the session (`end_time`, `duration_seconds` = elapsed, `is_active = 0`) exactly like the sheet's "finish". It just saves, without opening the app (Q2).
 - **Opening the app while it runs**: the sheet already restores active sessions on open (`session.isActive && session.startTime != null` → resumes the counter), so opening the book and tapping the timer FAB shows the same running time. Pausing/stopping in the app refreshes the widget, and vice versa.
-- **One timer at a time** across all widgets and the app (see Q3). Starting a second one asks first or is blocked.
+- **One timer at a time** from the widget: ▶ is blocked with "Timer already running for <book>" (Q3).
 - Existing rule kept: the sheet's X still asks for confirmation and **discards** the session. A running widget timer counts as "a session in progress".
 - Optional: an ongoing notification while a timer runs (see Q6).
 
@@ -94,17 +94,13 @@ Verification: emulator (Android 14) with the widget added. Check the picker, tap
 
 ---
 
-## 7. Open questions
+## 7. Decisions (answered in the thread)
 
-1. **Pinned book finished:** when the pinned book is marked as read, should the widget
-   a) show a "Finished! 🎉 tap to choose your next book" card (opens the picker), or
-   b) switch automatically to the Started book you read most recently?
-2. **After ⏹ Stop:** open the app on the book so you can update your page (my default), or just save the session silently and stay on the home screen?
-3. **One timer at a time:** if a timer is running for book A and you press ▶ on book B's widget, should it
-   a) stop A (saving it) and start B, or
-   b) do nothing and show "Timer already running for A"?
-4. **Changing the pinned book:** is long-press → "Reconfigure" (Android 12+) enough, or do you also want a small ⋯ icon on the widget? Which Android version is your phone on?
-5. **Theme:** should the widget follow the app's theme (Main/Ocean/Royal/Warm Earth + its light/dark setting) or the phone's light/dark mode with the Main colours?
-6. **Ongoing notification:** while a widget timer runs, show a notification with the counter and ⏸/⏹ (useful from the lock screen), or keep everything on the widget only?
-7. **"~6 h left":** keep the estimated time left, or use that space for something else (e.g. "42 min today")?
-8. **Picker list:** only books with status **Started**, or also TBR books (so you can pin the next book before starting it)?
+1. **Pinned book finished** (no longer Started): the widget **switches automatically** to the Started book read most recently (latest reading activity), and stays pinned to that one.
+2. **After ⏹ Stop:** **just save** the session. The app doesn't open.
+3. **Timer already running for another book:** **blocked**, with a "Timer already running for <book>" message.
+4. **Changing the pinned book:** long-press → "Reconfigure" is enough (no ⋯ icon). Support **every Android version the app supports** (minSdk 24). On Android < 12, where "Reconfigure" doesn't exist, remove the widget and add it again.
+5. **Theme:** follows the **app's theme**: family + light/dark setting, with "system" resolved against the phone's mode.
+6. **Ongoing notification** while a timer runs: **yes**, with the counter and ⏸/▶/⏹.
+7. **Estimated time left:** **kept**. For both page and percentage progress: timed seconds so far × (remaining ÷ read). Hidden when there is no timed data or no progress yet.
+8. **Picker list:** **only Started books.**
