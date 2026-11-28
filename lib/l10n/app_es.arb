@@ -2095,5 +2095,20 @@
   "catalog_dont_show_hidden": "No mostrar ocultos",
   "catalog_open_book": "Abrir libro",
   "catalog_no_matches": "Ningún libro coincide",
-  "catalog_load_failed": "No se pudo conectar con Open Library ni Google Books. Desliza hacia abajo para reintentar."
+  "catalog_load_failed": "No se pudo conectar con Open Library ni Google Books. Desliza hacia abajo para reintentar.",
+  "widget_header": "LEYENDO AHORA",
+  "widget_start_timer": "Iniciar cronómetro",
+  "widget_no_books": "No hay libros en curso",
+  "widget_open_app": "Toca para abrir My Book Vault",
+  "widget_pick_title": "Elige un libro",
+  "widget_pick_empty": "Marca un libro como Empezado en My Book Vault para verlo aquí.",
+  "widget_timer_running": "Ya hay un cronómetro en marcha para {title}",
+  "widget_session_saved": "Sesión de lectura guardada: {duration}",
+  "widget_paused": "En pausa",
+  "widget_timer_channel": "Cronómetro de lectura",
+  "widget_pages_progress": "p. {current} / {total}",
+  "widget_pages_only": "p. {current}",
+  "widget_time_left_minutes": "~{minutes} min restantes",
+  "widget_time_left_hours": "~{hours} h restantes",
+  "widget_time_left_hours_minutes": "~{hours} h {minutes} min restantes"
 }

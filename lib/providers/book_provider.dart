@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../db/database_helper.dart';
 import '../repositories/book_repository.dart';
+import 'package:myrandomlibrary/services/home_widget_service.dart';
 
 class BookProvider extends ChangeNotifier {
   late BookRepository _repo;
@@ -96,6 +97,7 @@ class BookProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    HomeWidgetService.instance.requestRefresh();
   }
 
   void _applyAllFilters() {

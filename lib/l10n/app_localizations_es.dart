@@ -4940,4 +4940,64 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get catalog_load_failed =>
       'No se pudo conectar con Open Library ni Google Books. Desliza hacia abajo para reintentar.';
+
+  @override
+  String get widget_header => 'LEYENDO AHORA';
+
+  @override
+  String get widget_start_timer => 'Iniciar cronómetro';
+
+  @override
+  String get widget_no_books => 'No hay libros en curso';
+
+  @override
+  String get widget_open_app => 'Toca para abrir My Book Vault';
+
+  @override
+  String get widget_pick_title => 'Elige un libro';
+
+  @override
+  String get widget_pick_empty =>
+      'Marca un libro como Empezado en My Book Vault para verlo aquí.';
+
+  @override
+  String widget_timer_running(String title) {
+    return 'Ya hay un cronómetro en marcha para $title';
+  }
+
+  @override
+  String widget_session_saved(String duration) {
+    return 'Sesión de lectura guardada: $duration';
+  }
+
+  @override
+  String get widget_paused => 'En pausa';
+
+  @override
+  String get widget_timer_channel => 'Cronómetro de lectura';
+
+  @override
+  String widget_pages_progress(int current, int total) {
+    return 'p. $current / $total';
+  }
+
+  @override
+  String widget_pages_only(int current) {
+    return 'p. $current';
+  }
+
+  @override
+  String widget_time_left_minutes(int minutes) {
+    return '~$minutes min restantes';
+  }
+
+  @override
+  String widget_time_left_hours(int hours) {
+    return '~$hours h restantes';
+  }
+
+  @override
+  String widget_time_left_hours_minutes(int hours, int minutes) {
+    return '~$hours h $minutes min restantes';
+  }
 }

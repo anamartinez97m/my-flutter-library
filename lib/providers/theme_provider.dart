@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:myrandomlibrary/config/themes/app_theme_palette.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
+import 'package:myrandomlibrary/services/home_widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode { light, dark, system }
@@ -117,6 +118,7 @@ class ThemeProvider with ChangeNotifier, WidgetsBindingObserver {
   void _applyPalette() {
     V2Colors.use(palette);
     notifyListeners();
+    HomeWidgetService.instance.requestRefresh();
     void rebuild(Element element) {
       element.markNeedsBuild();
       element.visitChildren(rebuild);
