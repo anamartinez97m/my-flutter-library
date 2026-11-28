@@ -101,14 +101,8 @@ class ReadingTimer(private val context: Context) {
                 put("is_active", 0)
                 put("did_read", 1)
             }
-            val updated = db.update(
-                "reading_sessions", values, "book_id = ? AND is_active = 1", arrayOf(bookId.toString()),
-            )
-            if (updated == 0 && s.startTime != null) {
-                values.put("book_id", bookId)
-                values.put("start_time", s.startTime)
-                db.insertOrThrow("reading_sessions", null, values)
-            }
+            // No active row means the session was deleted in the app: nothing to save.
+            db.update("reading_sessions", values, "book_id = ? AND is_active = 1", arrayOf(bookId.toString()))
         }
         flutterPrefs.edit().remove(prefsKey(bookId)).commit()
         return elapsed
