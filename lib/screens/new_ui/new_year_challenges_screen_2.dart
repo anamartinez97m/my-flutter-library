@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -1252,7 +1253,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       ],
                     ),
                     Text(
-                      'Finished Dec 31, ${challenge.year}',
+                      'Finished ${formatDate(DateTime(challenge.year, 12, 31))}',
                       style: const TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 11,

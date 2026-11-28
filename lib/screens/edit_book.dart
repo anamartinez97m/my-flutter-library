@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/utils/publication_date.dart';
 import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/widgets/publication_date_fields.dart';
@@ -2168,7 +2169,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               ),
                               child: Text(
                                 _notificationDateTime != null
-                                    ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                                    ? '${formatDate(_notificationDateTime!)} at ${_notificationTime!.format(context)}'
                                     : AppLocalizations.of(
                                       context,
                                     )!.select_notification_date,
@@ -2406,7 +2407,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ),
                       child: Text(
                         _acquiredYearController.text.isNotEmpty
-                            ? _acquiredYearController.text
+                            ? formatDateForDisplay(_acquiredYearController.text)
                             : AppLocalizations.of(
                               context,
                             )!.select_acquired_date,
@@ -2485,7 +2486,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ] else ...[
                     const SizedBox(height: 32),
                     Text(
-                      AppLocalizations.of(context)!.reading_information_optional,
+                      AppLocalizations.of(
+                        context,
+                      )!.reading_information_optional,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,

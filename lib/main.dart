@@ -17,6 +17,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -56,6 +57,8 @@ void main() async {
 
   // Auto backup is triggered after the app is fully loaded (see _AutoBackupRunner)
 
+  await DateDisplaySettings.instance.load();
+
   try {
     final bookProvider = await BookProvider.create();
     runApp(
@@ -65,6 +68,9 @@ void main() async {
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => RoleProvider()),
+          ChangeNotifierProvider<DateDisplaySettings>.value(
+            value: DateDisplaySettings.instance,
+          ),
         ],
         child: const MyApp(),
       ),
@@ -79,6 +85,9 @@ void main() async {
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => RoleProvider()),
+          ChangeNotifierProvider<DateDisplaySettings>.value(
+            value: DateDisplaySettings.instance,
+          ),
         ],
         child: const MyApp(),
       ),
@@ -93,6 +102,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final dateSettings = Provider.of<DateDisplaySettings>(context);
+    dateSettings.locale = localeProvider.locale.toString();
 
     final isDarkMode = themeProvider.isDarkMode;
     final v2Overlay = SystemUiOverlayStyle(
@@ -115,9 +126,12 @@ class MyApp extends StatelessWidget {
     final app = MaterialApp(
       navigatorKey: NotificationService.navigatorKey,
       title: 'My Book Vault',
-      localizationsDelegates: const [
+      localizationsDelegates: [
         AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
+        DateSettingsMaterialLocalizationsDelegate(
+          weekStart: dateSettings.weekStart,
+          pattern: dateSettings.pattern,
+        ),
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],

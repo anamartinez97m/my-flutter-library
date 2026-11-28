@@ -30,6 +30,7 @@ import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/utils/book_fields_csv.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
@@ -478,12 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _formatTimestamp(String? timestamp) {
     if (timestamp == null) return '?';
     try {
-      final dt = DateTime.parse(timestamp);
-      return '${dt.day.toString().padLeft(2, '0')}/'
-          '${dt.month.toString().padLeft(2, '0')}/'
-          '${dt.year} '
-          '${dt.hour.toString().padLeft(2, '0')}:'
-          '${dt.minute.toString().padLeft(2, '0')}';
+      return formatDateTime(DateTime.parse(timestamp));
     } catch (_) {
       return timestamp;
     }
@@ -532,9 +528,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     )!.cloud_backup_books(_backupMetadata!['bookCount'] ?? '?'),
                   ),
                   Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.last_backup(_backupMetadata!['timestamp'] ?? '?'),
+                    AppLocalizations.of(context)!.last_backup(
+                      _formatTimestamp(_backupMetadata!['timestamp']),
+                    ),
                   ),
                 ],
               ],
@@ -579,6 +575,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         if (!context.mounted) return;
         await localeProvider.reloadFromPreferences();
+        await DateDisplaySettings.instance.load();
 
         // Reload local settings state (filters, card fields, reading reminders)
         await _loadEnabledFilters();
@@ -2830,7 +2827,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(height: 24),
         // TBR Limit
         const TBRLimitSetting(),
+        const SizedBox(height: 24),
+        _buildV2DateSettings(context),
       ],
+    );
+  }
+
+  Widget _buildV2DateSettings(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final labelStyle = TextStyle(
+      fontFamily: 'Manrope',
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: _kV2Text,
+    );
+    return Consumer<DateDisplaySettings>(
+      builder: (context, dateSettings, _) {
+        final sample = DateTime.now();
+        final isDark = context.watch<ThemeProvider>().isDarkMode;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.date_format, style: labelStyle),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: dateSettings.pattern,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+              items: [
+                for (final pattern in DateDisplaySettings.patterns)
+                  DropdownMenuItem(
+                    value: pattern,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(DateDisplaySettings.labelFor(pattern)),
+                        ),
+                        Text(
+                          dateSettings.format(sample, pattern: pattern),
+                          style: TextStyle(color: _kV2SubText),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+              onChanged: (value) {
+                if (value != null) dateSettings.setPattern(value);
+              },
+            ),
+            const SizedBox(height: 20),
+            Text(l10n.week_starts_on, style: labelStyle),
+            const SizedBox(height: 12),
+            SegmentedButton<WeekStart>(
+              segments: [
+                ButtonSegment(
+                  value: WeekStart.monday,
+                  label: Text(l10n.monday),
+                ),
+                ButtonSegment(
+                  value: WeekStart.sunday,
+                  label: Text(l10n.sunday),
+                ),
+              ],
+              style: ButtonStyle(
+                foregroundColor: WidgetStateProperty.resolveWith(
+                  (states) =>
+                      states.contains(WidgetState.selected) && isDark
+                          ? V2Colors.chipTextSelected
+                          : null,
+                ),
+              ),
+              selected: {dateSettings.weekStart},
+              showSelectedIcon: false,
+              onSelectionChanged: (selection) {
+                dateSettings.setWeekStart(selection.first);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

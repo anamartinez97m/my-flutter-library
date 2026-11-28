@@ -1463,7 +1463,11 @@
   "appearance": "Apariencia",
   "appearance_subtitle": "Tema e idioma",
   "library_display": "Visualización de Biblioteca",
-  "library_display_subtitle": "Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR",
+  "library_display_subtitle": "Filtros de Inicio, Campos de Tarjeta, Límite TBR, Formato de Fecha, Inicio de Semana",
+  "date_format": "Formato de Fecha",
+  "week_starts_on": "La semana empieza el",
+  "monday": "Lunes",
+  "sunday": "Domingo",
   "library_customization": "Personalización de Biblioteca",
   "library_customization_subtitle": "Campos de valoración, clubes, desplegables, precio y moneda",
 

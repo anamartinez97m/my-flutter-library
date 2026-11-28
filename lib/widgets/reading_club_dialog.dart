@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
-import 'package:intl/intl.dart';
 
 class ReadingClubDialog extends StatefulWidget {
   final ReadingClub? existingClub;
@@ -192,7 +192,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                       Text(
                         _selectedDate == null
                             ? AppLocalizations.of(context)!.select_date
-                            : DateFormat('yyyy-MM-dd').format(_selectedDate!),
+                            : formatDate(_selectedDate!),
                         style: TextStyle(
                           color:
                               _selectedDate == null

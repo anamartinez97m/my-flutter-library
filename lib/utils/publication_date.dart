@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/model/book.dart';
 
 /// An original publication date known to the year, the month or the day.
@@ -87,12 +88,10 @@ class PublicationDate {
     return '$y-$m-${day!.toString().padLeft(2, '0')}';
   }
 
-  /// `2020`, `May 2020` / `mayo de 2020`, or `14/05/2020`.
+  /// `2020`, `May 2020` / `mayo de 2020`, or the full date in the user's
+  /// chosen format (e.g. `14/05/2020`).
   String format([String? locale]) {
-    if (hasDay) {
-      return '${day!.toString().padLeft(2, '0')}/'
-          '${month!.toString().padLeft(2, '0')}/$year';
-    }
+    if (hasDay) return formatDate(fullDate!);
     if (hasMonth) {
       return DateFormat.yMMMM(locale).format(DateTime(year, month!));
     }

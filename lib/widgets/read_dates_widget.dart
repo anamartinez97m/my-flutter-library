@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
@@ -163,7 +164,9 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                     const SizedBox(width: 7),
                     Expanded(
                       child: Text(
-                        value ?? l10n.not_set,
+                        value == null
+                            ? l10n.not_set
+                            : formatDateForDisplay(value),
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: V2Typography.family,

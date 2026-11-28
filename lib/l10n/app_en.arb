@@ -1470,7 +1470,11 @@
   "appearance": "Appearance",
   "appearance_subtitle": "Theme and language settings",
   "library_display": "Library Display",
-  "library_display_subtitle": "Home Filters, Card Fields, Sort Order, TBR Limit",
+  "library_display_subtitle": "Home Filters, Card Fields, TBR Limit, Date Format, Week Start",
+  "date_format": "Date Format",
+  "week_starts_on": "Week starts on",
+  "monday": "Monday",
+  "sunday": "Sunday",
   "library_customization": "Library Customization",
   "library_customization_subtitle": "Rating fields, clubs, dropdowns, price & currency",
 

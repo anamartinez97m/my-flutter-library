@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -411,7 +412,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '--';
-    return DateFormat('d MMM y').format(date);
+    return formatDate(date);
   }
 
   String _formatTime(DateTime? date) {
@@ -1035,7 +1036,7 @@ class _EditingSessionCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              DateFormat('yyyy-MM-dd').format(editDate),
+                              formatDate(editDate),
                               style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 13,

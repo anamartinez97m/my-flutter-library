@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -389,7 +390,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     if (book.dateReadFinal != null) {
       final date = _tryParseDate(book.dateReadFinal!);
       if (date != null) {
-        dateStr = '${date.day}/${date.month}/${date.year}';
+        dateStr = formatDate(date);
       } else {
         dateStr = book.dateReadFinal!;
       }
