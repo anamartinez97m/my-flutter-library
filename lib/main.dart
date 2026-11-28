@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
+import 'package:myrandomlibrary/services/home_widget_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +59,8 @@ void main() async {
   // Auto backup is triggered after the app is fully loaded (see _AutoBackupRunner)
 
   await DateDisplaySettings.instance.load();
+
+  HomeWidgetService.instance.initialize();
 
   try {
     final bookProvider = await BookProvider.create();
@@ -210,6 +213,8 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner>
       );
       _runAutoBackup();
       NotificationService().processPendingNavigation();
+      HomeWidgetService.instance.handleLaunch();
+      HomeWidgetService.instance.refresh();
     });
   }
 
@@ -224,6 +229,11 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner>
     // Drop today's reminder if a book was read, and keep the window filled.
     if (state == AppLifecycleState.resumed) {
       NotificationService().refreshReadingReminders();
+      HomeWidgetService.instance.refresh();
+    }
+    // Push anything changed in the app before it goes to the background.
+    if (state == AppLifecycleState.paused) {
+      HomeWidgetService.instance.refresh();
     }
   }
 

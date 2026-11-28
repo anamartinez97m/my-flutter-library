@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reading_widget_label">Leyendo ahora</string>
+    <string name="reading_widget_description">Progreso de un libro que estás leyendo, con cronómetro de lectura</string>
+</resources>

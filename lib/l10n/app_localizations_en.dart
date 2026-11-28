@@ -4886,4 +4886,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get catalog_load_failed =>
       'Couldn\'t reach Open Library or Google Books. Pull to retry.';
+
+  @override
+  String get widget_header => 'CURRENTLY READING';
+
+  @override
+  String get widget_start_timer => 'Start timer';
+
+  @override
+  String get widget_no_books => 'No books in progress';
+
+  @override
+  String get widget_open_app => 'Tap to open My Book Vault';
+
+  @override
+  String get widget_pick_title => 'Choose a book';
+
+  @override
+  String get widget_pick_empty =>
+      'Mark a book as Started in My Book Vault to show it here.';
+
+  @override
+  String widget_timer_running(String title) {
+    return 'Timer already running for $title';
+  }
+
+  @override
+  String widget_session_saved(String duration) {
+    return 'Reading session saved: $duration';
+  }
+
+  @override
+  String get widget_paused => 'Paused';
+
+  @override
+  String get widget_timer_channel => 'Reading timer';
+
+  @override
+  String widget_pages_progress(int current, int total) {
+    return 'p. $current / $total';
+  }
+
+  @override
+  String widget_pages_only(int current) {
+    return 'p. $current';
+  }
+
+  @override
+  String widget_time_left_minutes(int minutes) {
+    return '~$minutes min left';
+  }
+
+  @override
+  String widget_time_left_hours(int hours) {
+    return '~$hours h left';
+  }
+
+  @override
+  String widget_time_left_hours_minutes(int hours, int minutes) {
+    return '~$hours h $minutes min left';
+  }
 }

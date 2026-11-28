@@ -231,6 +231,10 @@ class NotificationService {
     }
   }
 
+  /// Opens the book detail screen, waiting for the navigator on cold start.
+  Future<void> navigateToBook(int bookId) =>
+      _navigateToBookFromPayload('book_release_$bookId');
+
   Future<void> _navigateToBookFromPayload(String? payload) async {
     if (payload == null) return;
 

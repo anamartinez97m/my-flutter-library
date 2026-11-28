@@ -8675,6 +8675,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t reach Open Library or Google Books. Pull to retry.'**
   String get catalog_load_failed;
+
+  /// No description provided for @widget_header.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENTLY READING'**
+  String get widget_header;
+
+  /// No description provided for @widget_start_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start timer'**
+  String get widget_start_timer;
+
+  /// No description provided for @widget_no_books.
+  ///
+  /// In en, this message translates to:
+  /// **'No books in progress'**
+  String get widget_no_books;
+
+  /// No description provided for @widget_open_app.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open My Book Vault'**
+  String get widget_open_app;
+
+  /// No description provided for @widget_pick_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a book'**
+  String get widget_pick_title;
+
+  /// No description provided for @widget_pick_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark a book as Started in My Book Vault to show it here.'**
+  String get widget_pick_empty;
+
+  /// No description provided for @widget_timer_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer already running for {title}'**
+  String widget_timer_running(String title);
+
+  /// No description provided for @widget_session_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading session saved: {duration}'**
+  String widget_session_saved(String duration);
+
+  /// No description provided for @widget_paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get widget_paused;
+
+  /// No description provided for @widget_timer_channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading timer'**
+  String get widget_timer_channel;
+
+  /// No description provided for @widget_pages_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'p. {current} / {total}'**
+  String widget_pages_progress(int current, int total);
+
+  /// No description provided for @widget_pages_only.
+  ///
+  /// In en, this message translates to:
+  /// **'p. {current}'**
+  String widget_pages_only(int current);
+
+  /// No description provided for @widget_time_left_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'~{minutes} min left'**
+  String widget_time_left_minutes(int minutes);
+
+  /// No description provided for @widget_time_left_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'~{hours} h left'**
+  String widget_time_left_hours(int hours);
+
+  /// No description provided for @widget_time_left_hours_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'~{hours} h {minutes} min left'**
+  String widget_time_left_hours_minutes(int hours, int minutes);
 }
 
 class _AppLocalizationsDelegate

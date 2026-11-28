@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/services/home_widget_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,12 +46,16 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    HomeWidgetService.instance.timerChanges.addListener(_onWidgetTimerChanged);
     _loadActiveSession();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    HomeWidgetService.instance.timerChanges.removeListener(
+      _onWidgetTimerChanged,
+    );
     _timer?.cancel();
     if (_hasSessionInProgress && !_isStopping) {
       _saveSessionState();
@@ -75,34 +80,51 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         }
         break;
       case AppLifecycleState.resumed:
-        // App is coming to foreground - resume timer
-        if (_isRunning && _appPausedTime != null) {
-          final now = DateTime.now();
-          final backgroundDuration = now.difference(_appPausedTime!).inSeconds;
-
-          setState(() {
-            _elapsedSeconds += backgroundDuration;
-            _appPausedTime = null;
-          });
-
-          // Restart the timer
-          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-            if (mounted) {
-              setState(() {
-                _elapsedSeconds++;
-              });
-            }
-          });
-
-          // Update the session in database
-          _updateSessionInBackground();
-        }
+        // The home widget may have paused, resumed or stopped this session
+        // while the app was in the background.
+        if (_hasSessionInProgress) _resyncFromStore();
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
         break;
     }
+  }
+
+  void _onWidgetTimerChanged() {
+    if (HomeWidgetService.instance.timerChanges.value == widget.bookId) {
+      _resyncFromStore();
+    }
+  }
+
+  /// Reloads the session from the shared store after the home widget or its
+  /// notification changed it.
+  Future<void> _resyncFromStore() async {
+    _timer?.cancel();
+    _timer = null;
+    if (!mounted) return;
+    setState(() => _isRunning = false);
+    _appPausedTime = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    final restored = await _restoreSessionState();
+    if (!mounted) return;
+    if (!restored) {
+      WakelockPlus.disable();
+      setState(() {
+        _elapsedSeconds = 0;
+        _activeSession = null;
+        _sessionStartTime = null;
+      });
+      widget.onSessionComplete?.call();
+      return;
+    }
+    if (!_isRunning) WakelockPlus.disable();
+    final db = await DatabaseHelper.instance.database;
+    final session = await ReadingSessionRepository(
+      db,
+    ).getActiveSession(widget.bookId);
+    if (mounted) setState(() => _activeSession = session);
   }
 
   Future<void> _saveSessionState() async {
@@ -119,6 +141,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           'savedAt': DateTime.now().toIso8601String(),
         }),
       );
+      HomeWidgetService.instance.requestRefresh();
     } catch (e) {
       debugPrint('Failed to save session state: $e');
     }
@@ -129,6 +152,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_prefsKey);
       await prefs.remove(_legacyPrefsKey);
+      HomeWidgetService.instance.requestRefresh();
     } catch (e) {
       debugPrint('Failed to clear session state: $e');
     }
