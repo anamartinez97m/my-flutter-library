@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/cover"
@@ -63,7 +63,7 @@
                 android:id="@+id/progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:scaleType="fitXY" />
 
             <LinearLayout
@@ -91,7 +91,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="6dp">
 
                 <LinearLayout
                     android:id="@+id/idle_row"

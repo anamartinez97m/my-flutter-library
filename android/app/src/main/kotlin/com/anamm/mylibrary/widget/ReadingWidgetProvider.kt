@@ -182,7 +182,7 @@ class ReadingWidgetProvider : AppWidgetProvider() {
         /** Width left for the progress bar: widget width minus cover and paddings. */
         private fun barWidthDp(options: Bundle): Int {
             val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250)
-            return (width - 16 - 16 - 72 - 12).coerceAtLeast(80)
+            return (width - 12 - 12 - 72 - 12).coerceAtLeast(80)
         }
 
         fun actionIntent(context: Context, action: String, bookId: Int): PendingIntent {
